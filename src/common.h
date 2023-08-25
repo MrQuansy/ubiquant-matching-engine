@@ -30,7 +30,7 @@ struct OrderLog {
 //        }
 //        return timestamp < o.timestamp;
 //    }
-};
+} __attribute__((packed));
 
 struct minHeapCmp {
     // return true if o1.priceOff < o2.priceOff || (o1.priceOff == o2.priceOff && o1.timestamp < o2.timestamp)
