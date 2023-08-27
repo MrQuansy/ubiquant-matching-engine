@@ -15,7 +15,7 @@ int main() {
     printf("Test efficiency of BinaryHeap...\n");
 
     auto start = std::chrono::high_resolution_clock::now();
-    BinaryHeap<OrderLog, maxHeapCmp> maxBinaryHeap(N);
+    BinaryHeap<OrderLog, MaxBinaryHeapCmp> maxBinaryHeap(N);
     for (int i = 0; i < N; i++) {
         OrderLog orderLog = {
                 std::rand(),
@@ -34,7 +34,7 @@ int main() {
     }
     auto bhPopTime = std::chrono::high_resolution_clock::now() - start;
 
-    std::priority_queue<OrderLog, std::vector<OrderLog>, minHeapCmp> pq;
+    std::priority_queue<OrderLog, std::vector<OrderLog>, MinBinaryHeapCmp> pq;
     start = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < N; i++) {
         //pq.push(std::rand());

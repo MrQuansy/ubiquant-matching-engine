@@ -15,7 +15,7 @@ int main() {
 
     printf("Test max BinaryHeap...\n");
 
-    BinaryHeap<OrderLog, maxHeapCmp> maxBinaryHeap(N);
+    BinaryHeap<OrderLog, MaxBinaryHeapCmp> maxBinaryHeap(N);
     for (int i = 0; i < N; i++) {
         OrderLog orderLog = {
                 std::rand(),
@@ -31,12 +31,12 @@ int main() {
     int lastTime = 0;
     while (!maxBinaryHeap.isEmpty()) {
         OrderLog orderLog = maxBinaryHeap.pop();
-        if (_abs(lastPrice - orderLog.priceOff) > EPS) {
-            assert(lastPrice > orderLog.priceOff);
+        if (_abs(lastPrice - orderLog.price) > EPS) {
+            assert(lastPrice > orderLog.price);
         } else {
             assert(lastTime < orderLog.timestamp);
         }
-        lastPrice = orderLog.priceOff;
+        lastPrice = orderLog.price;
         lastTime = orderLog.timestamp;
     }
 
@@ -44,7 +44,7 @@ int main() {
 
     printf("Test min BinaryHeap...\n");
 
-    BinaryHeap<OrderLog, minHeapCmp> minBinaryHeap(N);
+    BinaryHeap<OrderLog, MinBinaryHeapCmp> minBinaryHeap(N);
     for (int i = 0; i < N; i++) {
         OrderLog orderLog = {
                 std::rand(),
@@ -60,12 +60,12 @@ int main() {
     lastTime = 0;
     while (!minBinaryHeap.isEmpty()) {
         OrderLog orderLog = minBinaryHeap.pop();
-        if (_abs(lastPrice - orderLog.priceOff) > EPS) {
-            assert(lastPrice < orderLog.priceOff);
+        if (_abs(lastPrice - orderLog.price) > EPS) {
+            assert(lastPrice < orderLog.price);
         } else {
             assert(lastTime < orderLog.timestamp);
         }
-        lastPrice = orderLog.priceOff;
+        lastPrice = orderLog.price;
         lastTime = orderLog.timestamp;
     }
 
