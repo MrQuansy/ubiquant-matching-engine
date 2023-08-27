@@ -4,12 +4,15 @@
 
 #include "../src/common.h"
 #include "../src/binary_heap.h"
+#include "gtest/gtest.h"
 
 #include <queue>
 
 const int N = 1E7;
 
-int main() {
+class HeapEfficiencyTest : public ::testing::Test {};
+
+TEST_F(HeapEfficiencyTest, heap_efficiency_test) {
     std::srand(std::time(nullptr));
 
     printf("Test efficiency of BinaryHeap...\n");
@@ -21,8 +24,8 @@ int main() {
                 std::rand(),
                 std::rand(),
                 (double) (std::rand() % 100000) / 100.0,
-                std::rand() % 256,
-                std::rand() % 256
+                static_cast<unsigned char>(std::rand() % 256),
+                static_cast<unsigned char>(std::rand() % 256)
         };
         maxBinaryHeap.insert(orderLog);
     }
@@ -42,8 +45,8 @@ int main() {
                 std::rand(),
                 std::rand(),
                 (double) (std::rand() % 100000) / 100.0,
-                std::rand() % 256,
-                std::rand() % 256
+                static_cast<unsigned char>(std::rand() % 256),
+                static_cast<unsigned char>(std::rand() % 256)
         };
         pq.push(orderLog);
     }

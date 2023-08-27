@@ -4,13 +4,16 @@
 
 #include "../src/common.h"
 #include "../src/binary_heap.h"
+#include "gtest/gtest.h"
 
 #include <random>
 
 const int M = 100;
 const int N = 1E6;
 
-int main() {
+class HeapPackTest : public ::testing::Test {};
+
+TEST_F(HeapPackTest, heap_pack_test) {
     std::srand(std::time(nullptr));
 
     printf("Test pack of BinaryHeap...\n");
@@ -24,8 +27,8 @@ int main() {
                     std::rand(),
                     std::rand(),
                     (double) (std::rand() % 100000) / 100.0,
-                    std::rand() % 256,
-                    std::rand() % 256
+                    static_cast<unsigned char>(std::rand() % 256),
+                    static_cast<unsigned char>(std::rand() % 256)
             };
             maxBinaryHeap.insert(orderLog);
         }

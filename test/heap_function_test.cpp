@@ -5,12 +5,15 @@
 
 #include "../src/common.h"
 #include "../src/binary_heap.h"
+#include "gtest/gtest.h"
 
 #include <random>
 
 const int N = 1E7;
 
-int main() {
+class HeapFunctionTest : public ::testing::Test {};
+
+TEST_F(HeapFunctionTest, heap_function_test) {
     std::srand(std::time(nullptr));
 
     printf("Test max BinaryHeap...\n");
@@ -21,8 +24,8 @@ int main() {
                 std::rand() % 86400,
                 std::rand(),
                 (double) (std::rand() % 100000) / 100.0,
-                std::rand() % 256,
-                ((std::rand() % 2) << 3) | (std::rand() % 7)
+                static_cast<unsigned char>(std::rand() % 256),
+                static_cast<unsigned char>(((std::rand() % 2) << 3) | (std::rand() % 7))
         };
         maxBinaryHeap.insert(orderLog);
     }
@@ -32,11 +35,11 @@ int main() {
     while (!maxBinaryHeap.isEmpty()) {
         OrderLog orderLog = maxBinaryHeap.pop();
         if (_abs(lastPrice - orderLog.price) > EPS) {
-            assert(lastPrice > orderLog.price);
+            EXPECT_GT(lastPrice, orderLog.price);
         } else if (lastTime != orderLog.timestamp) {
-            assert(lastTime < orderLog.timestamp);
+            EXPECT_LT(lastTime, orderLog.timestamp);
         } else {
-            assert(lastType < (orderLog.directionAndType & TYPE_MASK));
+            EXPECT_LT(lastType, (orderLog.directionAndType & TYPE_MASK));
         }
         lastPrice = orderLog.price;
         lastTime = orderLog.timestamp;
@@ -53,8 +56,8 @@ int main() {
                 std::rand() % 86400,
                 std::rand(),
                 (double) (std::rand() % 100000) / 100.0,
-                std::rand() % 256,
-                ((std::rand() % 2) << 3) | (std::rand() % 7)
+                static_cast<unsigned char>(std::rand() % 256),
+                static_cast<unsigned char>(((std::rand() % 2) << 3) | (std::rand() % 7))
         };
         minBinaryHeap.insert(orderLog);
     }
@@ -64,11 +67,11 @@ int main() {
     while (!minBinaryHeap.isEmpty()) {
         OrderLog orderLog = minBinaryHeap.pop();
         if (_abs(lastPrice - orderLog.price) > EPS) {
-            assert(lastPrice < orderLog.price);
+            EXPECT_LT(lastPrice, orderLog.price);
         } else if (lastTime != orderLog.timestamp) {
-            assert(lastTime < orderLog.timestamp);
+            EXPECT_LT(lastTime, orderLog.timestamp);
         } else {
-            assert(lastType < (orderLog.directionAndType & TYPE_MASK));
+            EXPECT_LT(lastType, (orderLog.directionAndType & TYPE_MASK));
         }
         lastPrice = orderLog.price;
         lastTime = orderLog.timestamp;

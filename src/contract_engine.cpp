@@ -144,7 +144,7 @@ void ContractEngine::insertAlpha(Alpha alpha) {
                 .volume = (diff * (i + 1) / sessionNum) - (diff * i / sessionNum),
                 .price = basePrice,
                 .instrument = alpha.instrument,
-                .directionAndType = direction | MyContract
+                .directionAndType = static_cast<unsigned char>(direction | MyContract)
         };
         twapOrders.push_back(orderLog);
         if (orderLog.volume) {

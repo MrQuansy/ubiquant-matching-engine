@@ -26,19 +26,19 @@ const static std::pair<int, int> SESSIONS[5] = {
 #define _abs(x) ((x) < 0 ? -(x) : (x))
 #define _min(x, y) ((x) < (y) ? (x) : (y))
 
-enum ContractType {
-    PriceLimit = 0,
-    OppositeBestPrice = 1,
-    OurBestPrice = 2,
-    BestFivePriceNoLeft = 3,
-    ImmediateDealNoLeft = 4,
-    AllOrNothing = 5,
-    MyContract = 6
+enum ContractType : unsigned char {
+    PriceLimit = (unsigned char) 0,
+    OppositeBestPrice = (unsigned char) 1,
+    OurBestPrice = (unsigned char) 2,
+    BestFivePriceNoLeft = (unsigned char) 3,
+    ImmediateDealNoLeft = (unsigned char) 4,
+    AllOrNothing = (unsigned char) 5,
+    MyContract = (unsigned char) 6
 };
 
-enum Direction {
-    Sale = 0,
-    Buy = 1
+enum Direction : unsigned char {
+    Sale = (unsigned char) 0,
+    Buy = (unsigned char) 1
 };
 
 struct OrderLog {

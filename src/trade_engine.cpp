@@ -12,7 +12,7 @@ void TradeEngine::initContract(const std::string &instrument, const double &prev
     PrevTradeInfo prevTradeInfo = {
             .prevClosePrice = prevClosePrice,
             .prevPosition = prevPosition,
-            .instrument = instrumentId
+            .instrument = static_cast<unsigned char>(instrumentId)
     };
     contractEngineMap[instrumentId] =
             new ContractEngine(session.first, session.second, prevTradeInfo);
@@ -32,7 +32,7 @@ void TradeEngine::insertOrderLog(
 
     unsigned char d = direction == -1 ? Sale : Buy;
     OrderLog orderLog = {
-            .timestamp = timestamp - timestampOffset,
+            .timestamp = static_cast<int>(timestamp - timestampOffset),
             .volume = volume,
             .price = priceOff,
             .instrument = instrumentToIdMap[instrument],
@@ -43,7 +43,7 @@ void TradeEngine::insertOrderLog(
 
 void TradeEngine::insertAlpha(const std::string &instrument, const long long &timestamp, const int &targetVolume) {
     Alpha alpha = {
-            .timestamp = timestamp - timestampOffset,
+            .timestamp = static_cast<int>(timestamp - timestampOffset),
             .targetVolume = targetVolume,
             .instrument = instrumentToIdMap[instrument]
     };
