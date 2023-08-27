@@ -25,10 +25,10 @@ public:
     }
 
     // Init a contract by its PrevTradeInfo
-    void initContract(const std::string &instrument, const double &prevClosePrice, const int &prevPosition);
+    inline void initContract(const std::string &instrument, const double &prevClosePrice, const int &prevPosition);
 
     // Insert OrderLog by time order
-    void insertOrderLog(
+    inline void insertOrderLog(
             const std::string &instrument,
             const long long &timestamp,
             const int &type,
@@ -38,7 +38,7 @@ public:
 
     // Insert Alpha by time order
     // Notice that an alpha should always been inserted after the OrderLog if they have the same timestamp
-    void insertAlpha(const std::string &instrument, const long long &timestamp, const int &targetVolume);
+    inline void insertAlpha(const std::string &instrument, const long long &timestamp, const int &targetVolume);
 
     // TODO: optimize for output
     std::vector<twap_order> getTWAPOrders();

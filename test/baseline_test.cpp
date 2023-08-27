@@ -11,7 +11,7 @@
 #include <iostream>
 #include <fstream>
 
-const static std::string DATA_PREFIX = "~/Downloads/data/";
+const static std::string DATA_PREFIX = "/Users/yongzaodan/Downloads/data/";
 const static std::string DATES[] = {
         "20150101",
         "20160202",
@@ -24,7 +24,7 @@ const static std::string ORDER_LOG = "/order_log";
 const static std::string PREV_TRADE_INFO = "/prev_trade_info";
 const static std::string TWAP_ORDER = "/twap_order";
 const static std::string PNL_AND_POSITION = "/pnl_and_position";
-const static std::string OUTPUT_PREFIX = "~/Downloads/output";
+const static std::string OUTPUT_PREFIX = "/Users/yongzaodan/Downloads/output";
 
 bool compareBinaryFiles(const std::string& file1, const std::string& file2);
 
@@ -54,6 +54,7 @@ TEST_F(BaseLineTest, base_line_test) {
             }
         }
         prevTradeInfoFile.close();
+        std::cout << date << " prev_trade_info read successfully" << std::endl;
 
         // Read order_log
         order_log orderLog{};
@@ -63,6 +64,7 @@ TEST_F(BaseLineTest, base_line_test) {
             orderLogs.push_back(orderLog);
         }
         orderLogFile.close();
+        std::cout << date << " order_log read successfully" << std::endl;
 
         // Read alpha
         alpha a{};
@@ -72,11 +74,13 @@ TEST_F(BaseLineTest, base_line_test) {
             alphas.push_back(a);
         }
         alphaFile.close();
+        std::cout << date << " alpha read successfully" << std::endl;
 
         // Trading
+        auto start = std::chrono::high_resolution_clock::now();
         int oPos = 0, aPos = 0;
         while (oPos < orderLogs.size() || aPos < alphas.size()) {
-            if (aPos == alphas.size() - 1 || orderLogs[oPos].timestamp <= alphas[aPos].timestamp) {
+            if (aPos == alphas.size() || (oPos < orderLogs.size() && orderLogs[oPos].timestamp <= alphas[aPos].timestamp)) {
                 for (auto & tradeEngine : tradeEngines) {
                     tradeEngine.insertOrderLog(
                             std::string(orderLogs[oPos].instrument_id),
@@ -99,6 +103,9 @@ TEST_F(BaseLineTest, base_line_test) {
                 aPos++;
             }
         }
+        auto tradeTime = std::chrono::high_resolution_clock::now() - start;
+        std::cout << date << " trading successfully, trade time: ";
+        std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(tradeTime).count() << " ms" << std::endl;
 
         // Write twap_order
         for (int i = 0; i < 5; i++) {
@@ -110,6 +117,7 @@ TEST_F(BaseLineTest, base_line_test) {
             }
             twapOrderFile.close();
         }
+        std::cout << date << " twap_order write successfully" << std::endl;
 
         // Write pnl_and_position
         for (int i = 0; i < 5; i++) {
@@ -121,20 +129,22 @@ TEST_F(BaseLineTest, base_line_test) {
             }
             pnlAndPositionFile.close();
         }
-    }
+        std::cout << date << " pnl_and_position write successfully" << std::endl;
 
-    // Compare twap_order and pnl_and_position
-    for (const auto& date : DATES) {
-        for (const auto & i : SESSIONS) {
-            std::string suffix = "_" + std::to_string(i.first) + "_" + std::to_string(i.second);
+        for (const auto & session : SESSIONS) {
+            std::string suffix = "_" + std::to_string(session.first) + "_" + std::to_string(session.second);
             EXPECT_TRUE(compareBinaryFiles(
                     DATA_PREFIX + date + TWAP_ORDER + suffix,
                     OUTPUT_PREFIX + TWAP_ORDER + "/" + date + suffix));
+            std::cout << date << " twap_order_" << session.first << "_" << session.second << " pass" << std::endl;
             EXPECT_TRUE(compareBinaryFiles(
                     DATA_PREFIX + date + PNL_AND_POSITION + suffix,
                     OUTPUT_PREFIX + PNL_AND_POSITION + "/" + date + suffix));
+            std::cout << date << " pnl_and_position_" << session.first << "_" << session.second << " pass" << std::endl;
         }
     }
+
+    std::cout << "Baseline pass" << std::endl;
 }
 
 bool compareBinaryFiles(const std::string& file1, const std::string& file2) {
