@@ -50,14 +50,14 @@ void TradeEngine::insertAlpha(const std::string &instrument, const long long &ti
     contractEngineMap[alpha.instrument]->insertAlpha(alpha);
 }
 
-std::vector<TWAPOrder> TradeEngine::getTWAPOrders() {
-    std::vector<TWAPOrder> twapOrders;
+std::vector<twap_order> TradeEngine::getTWAPOrders() {
+    std::vector<twap_order> twapOrders;
     for (auto &contractEngine : contractEngineMap) {
         std::vector<OrderLog> contractTwapOrders = contractEngine.second->getTwapOrders();
         for (auto &orderLog : contractTwapOrders) {
             int direction = orderLog.directionAndType >> DIRECTION_OFFSET;
             direction = direction == Sale ? -1 : 1;
-            TWAPOrder twapOrder = {
+            twap_order twapOrder = {
                     .timestamp = orderLog.timestamp + timestampOffset,
                     .direction = direction,
                     .volume = orderLog.volume,
@@ -71,10 +71,10 @@ std::vector<TWAPOrder> TradeEngine::getTWAPOrders() {
     return twapOrders;
 }
 
-std::vector<PNLAndPos> TradeEngine::getPNLAndPos() {
-    std::vector<PNLAndPos> pnlAndPos;
+std::vector<pnl_and_pos> TradeEngine::getPNLAndPos() {
+    std::vector<pnl_and_pos> pnlAndPos;
     for (auto &contractEngine : contractEngineMap) {
-        PNLAndPos pnlAndPosItem = {
+        pnl_and_pos pnlAndPosItem = {
                 .position = contractEngine.second->getPosition(),
                 .pnl = contractEngine.second->getPNL()
         };

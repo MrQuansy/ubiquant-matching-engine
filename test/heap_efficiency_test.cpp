@@ -15,7 +15,7 @@ int main() {
     printf("Test efficiency of BinaryHeap...\n");
 
     auto start = std::chrono::high_resolution_clock::now();
-    BinaryHeap<OrderLog, MaxBinaryHeapCmp> maxBinaryHeap(N);
+    BinaryHeap maxBinaryHeap(N, new MaxBinaryHeapCmp());
     for (int i = 0; i < N; i++) {
         OrderLog orderLog = {
                 std::rand(),

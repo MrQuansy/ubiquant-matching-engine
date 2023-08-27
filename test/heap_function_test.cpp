@@ -15,43 +15,46 @@ int main() {
 
     printf("Test max BinaryHeap...\n");
 
-    BinaryHeap<OrderLog, MaxBinaryHeapCmp> maxBinaryHeap(N);
+    BinaryHeap maxBinaryHeap(N, new MaxBinaryHeapCmp());
     for (int i = 0; i < N; i++) {
         OrderLog orderLog = {
-                std::rand(),
+                std::rand() % 86400,
                 std::rand(),
                 (double) (std::rand() % 100000) / 100.0,
                 std::rand() % 256,
-                std::rand() % 256
+                ((std::rand() % 2) << 3) | (std::rand() % 7)
         };
         maxBinaryHeap.insert(orderLog);
     }
 
     double lastPrice = 1E9;
-    int lastTime = 0;
+    int lastTime = 0, lastType = 0;
     while (!maxBinaryHeap.isEmpty()) {
         OrderLog orderLog = maxBinaryHeap.pop();
         if (_abs(lastPrice - orderLog.price) > EPS) {
             assert(lastPrice > orderLog.price);
-        } else {
+        } else if (lastTime != orderLog.timestamp) {
             assert(lastTime < orderLog.timestamp);
+        } else {
+            assert(lastType < (orderLog.directionAndType & TYPE_MASK));
         }
         lastPrice = orderLog.price;
         lastTime = orderLog.timestamp;
+        lastType = orderLog.directionAndType & TYPE_MASK;
     }
 
     printf("max BinaryHeap correct!\n");
 
     printf("Test min BinaryHeap...\n");
 
-    BinaryHeap<OrderLog, MinBinaryHeapCmp> minBinaryHeap(N);
+    BinaryHeap minBinaryHeap(N, new MinBinaryHeapCmp());
     for (int i = 0; i < N; i++) {
         OrderLog orderLog = {
-                std::rand(),
+                std::rand() % 86400,
                 std::rand(),
                 (double) (std::rand() % 100000) / 100.0,
                 std::rand() % 256,
-                std::rand() % 256
+                ((std::rand() % 2) << 3) | (std::rand() % 7)
         };
         minBinaryHeap.insert(orderLog);
     }
@@ -62,11 +65,14 @@ int main() {
         OrderLog orderLog = minBinaryHeap.pop();
         if (_abs(lastPrice - orderLog.price) > EPS) {
             assert(lastPrice < orderLog.price);
-        } else {
+        } else if (lastTime != orderLog.timestamp) {
             assert(lastTime < orderLog.timestamp);
+        } else {
+            assert(lastType < (orderLog.directionAndType & TYPE_MASK));
         }
         lastPrice = orderLog.price;
         lastTime = orderLog.timestamp;
+        lastType = orderLog.directionAndType & TYPE_MASK;
     }
 
     printf("min BinaryHeap correct!\n");

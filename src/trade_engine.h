@@ -41,8 +41,8 @@ public:
     void insertAlpha(const std::string &instrument, const long long &timestamp, const int &targetVolume);
 
     // TODO: optimize for output
-    std::vector<TWAPOrder> getTWAPOrders();
-    std::vector<PNLAndPos> getPNLAndPos();
+    std::vector<twap_order> getTWAPOrders();
+    std::vector<pnl_and_pos> getPNLAndPos();
 
 private:
 

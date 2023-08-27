@@ -95,31 +95,52 @@ struct Alpha {
     unsigned char instrument;
 };
 
+// Input Only
+struct prev_trade_info {
+    char instrument_id[8];
+    double prev_close_price;
+    int prev_position;
+} __attribute__((packed));
+
+struct order_log {
+    char instrument_id[8];
+    long timestamp;
+    int type;
+    int direction;
+    int volume;
+    double price_off;
+} __attribute__((packed));
+
+struct alpha {
+    char instrument_id[8];
+    long timestamp;
+    int target_volume;
+} __attribute__((packed));
+
 // Output Only
-struct TWAPOrder {
+struct twap_order {
     char instrumentId[8];
-    long long timestamp;
+    long timestamp;
     int direction;
     int volume;
     double price;
 
-    bool operator < (const TWAPOrder &o) const {
+    bool operator < (const twap_order &o) const {
         if (timestamp != o.timestamp) {
             return timestamp < o.timestamp;
         }
         return std::strcmp(instrumentId, o.instrumentId);
     }
-};
+} __attribute__((packed));
 
-// Output Only
-struct PNLAndPos {
+struct pnl_and_pos {
     char instrumentId[8];
     int position;
     double pnl;
 
-    bool operator < (const PNLAndPos &o) const {
+    bool operator < (const pnl_and_pos &o) const {
         return std::strcmp(instrumentId, o.instrumentId);
     }
-};
+} __attribute__((packed));
 
 #endif //UBIQUANTMATCHINGENGINE_COMMON_H

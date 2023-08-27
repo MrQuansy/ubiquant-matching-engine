@@ -18,7 +18,7 @@ int main() {
     long long totInsert = 0, totPop = 0;
     for (int round = 0; round < M; round++) {
         auto start = std::chrono::high_resolution_clock::now();
-        BinaryHeap<OrderLog, MaxBinaryHeapCmp> maxBinaryHeap(N);
+        BinaryHeap maxBinaryHeap(N, new MaxBinaryHeapCmp());
         for (int i = 0; i < N; i++) {
             OrderLog orderLog = {
                     std::rand(),

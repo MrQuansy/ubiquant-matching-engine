@@ -128,6 +128,11 @@ void ContractEngine::insertOrderLog(OrderLog orderLog) {
 
 void ContractEngine::insertAlpha(Alpha alpha) {
     int diff = alpha.targetVolume - targetVolume;
+    if (!diff) {
+        // Skip if diff == 0
+        return;
+    }
+
     targetVolume = alpha.targetVolume;
     unsigned char direction = (diff > 0 ? Buy : Sale) << DIRECTION_OFFSET;
     double basePrice = getCurrentBasePrice(direction);
@@ -135,20 +140,24 @@ void ContractEngine::insertAlpha(Alpha alpha) {
     for (int i = 0; i < sessionNum; i++) {
         OrderLog orderLog = {
                 .timestamp = alpha.timestamp + i * sessionLength,
+                // The TWAP formula
                 .volume = (diff * (i + 1) / sessionNum) - (diff * i / sessionNum),
                 .price = basePrice,
                 .instrument = alpha.instrument,
                 .directionAndType = direction | MyContract
         };
-        switch (direction) {
-            case Buy:
-                buyHeap->insert(orderLog);
-                break;
-            case Sale:
-                saleHeap->insert(orderLog);
-                break;
-        }
         twapOrders.push_back(orderLog);
+        if (orderLog.volume) {
+            // Insert orderLog if volume > 0
+            switch (direction) {
+                case Buy:
+                    buyHeap->insert(orderLog);
+                    break;
+                case Sale:
+                    saleHeap->insert(orderLog);
+                    break;
+            }
+        }
     }
 
     processTrade();
