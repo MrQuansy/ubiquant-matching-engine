@@ -148,7 +148,7 @@ void ContractEngine::insertAlpha(Alpha alpha) {
                 saleHeap->insert(orderLog);
                 break;
         }
-        twapQueue.push(orderLog);
+        twapOrders.push_back(orderLog);
     }
 
     processTrade();
@@ -215,10 +215,14 @@ void ContractEngine::processTrade() {
     }
 }
 
+int ContractEngine::getPosition() const {
+    return volume;
+}
+
 double ContractEngine::getPNL() const {
     return lastPrice * volume - prevTradeInfo.prevClosePrice * prevTradeInfo.prevPosition + income;
 }
 
-std::queue<OrderLog> ContractEngine::getTwapQueue() const {
-    return twapQueue;
+std::vector<OrderLog> ContractEngine::getTwapOrders() const {
+    return twapOrders;
 }

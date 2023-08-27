@@ -36,8 +36,9 @@ public:
     void insertOrderLog(OrderLog orderLog);
     void insertAlpha(Alpha alpha);
 
+    int getPosition() const;
     double getPNL() const;
-    std::queue<OrderLog> getTwapQueue() const; // TODO: optimize output
+    std::vector<OrderLog> getTwapOrders() const; // TODO: optimize output
 
 private:
 
@@ -48,7 +49,7 @@ private:
 
     BinaryHeap* saleHeap;
     BinaryHeap* buyHeap;
-    std::queue<OrderLog> twapQueue;
+    std::vector<OrderLog> twapOrders;
 
     double getCurrentBasePrice(const unsigned char &direction);
 

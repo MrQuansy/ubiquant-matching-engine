@@ -5,12 +5,23 @@
 #ifndef UBIQUANTMATCHINGENGINE_COMMON_H
 #define UBIQUANTMATCHINGENGINE_COMMON_H
 
+#include <cstring>
+#include <utility>
+
 const static double EPS = 1E-4;
 const static int MAX_INT = ~0U >> 1;
 const static unsigned char MY_INSTRUMENT_ID = 0;
 const static unsigned char TYPE_MASK = 7;
 const static unsigned char DIRECTION_MASK = 8;
 const static unsigned char DIRECTION_OFFSET = 3;
+
+const static std::pair<int, int> SESSIONS[5] = {
+    std::make_pair(3, 1),
+    std::make_pair(3, 3),
+    std::make_pair(3, 5),
+    std::make_pair(5, 2),
+    std::make_pair(5, 3)
+};
 
 #define _abs(x) ((x) < 0 ? -(x) : (x))
 #define _min(x, y) ((x) < (y) ? (x) : (y))
@@ -82,6 +93,33 @@ struct Alpha {
     int timestamp;
     int targetVolume;
     unsigned char instrument;
+};
+
+// Output Only
+struct TWAPOrder {
+    char instrumentId[8];
+    long long timestamp;
+    int direction;
+    int volume;
+    double price;
+
+    bool operator < (const TWAPOrder &o) const {
+        if (timestamp != o.timestamp) {
+            return timestamp < o.timestamp;
+        }
+        return std::strcmp(instrumentId, o.instrumentId);
+    }
+};
+
+// Output Only
+struct PNLAndPos {
+    char instrumentId[8];
+    int position;
+    double pnl;
+
+    bool operator < (const PNLAndPos &o) const {
+        return std::strcmp(instrumentId, o.instrumentId);
+    }
 };
 
 #endif //UBIQUANTMATCHINGENGINE_COMMON_H
