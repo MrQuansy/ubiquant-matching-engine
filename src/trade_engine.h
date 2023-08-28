@@ -12,20 +12,31 @@
 #include <map>
 #include <queue>
 #include <string>
+#include <utility>
 #include <vector>
 #include <utility>
+#include <algorithm>
 
 struct TradeEngine {
 
 public:
 
-    TradeEngine(std::pair<int, int> session) : session(session) {
+    TradeEngine(std::pair<int, int> session) : session(std::move(session)) {
         lastId = 0;
-        timestampOffset = 0;
+        timestampOffset = -1;
+    }
+
+    ~TradeEngine() {
+        for (auto & contractEngine : contractEngineMap) {
+            delete contractEngine.second;
+        }
     }
 
     // Init a contract by its PrevTradeInfo
     void initContract(const std::string &instrument, const double &prevClosePrice, const int &prevPosition);
+
+    // Insert Alpha by time order
+    void insertAlpha(const std::string &instrument, const long long &timestamp, const int &targetVolume);
 
     // Insert OrderLog by time order
     void insertOrderLog(
@@ -36,9 +47,8 @@ public:
             const int &volume,
             const double &priceOff);
 
-    // Insert Alpha by time order
-    // Notice that an alpha should always been inserted after the OrderLog if they have the same timestamp
-    void insertAlpha(const std::string &instrument, const long long &timestamp, const int &targetVolume);
+
+    void onComplete();
 
     // TODO: optimize for output
     std::vector<twap_order> getTWAPOrders();

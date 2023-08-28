@@ -5,13 +5,13 @@
 #include "../src/common.h"
 #include "../src/trade_engine.h"
 #include "gtest/gtest.h"
+#include "binary_file_compare.h"
 
 #include <string>
 #include <vector>
 #include <iostream>
 #include <fstream>
 
-const static std::string DATA_PREFIX = "/Users/yongzaodan/Downloads/data/";
 const static std::string DATES[] = {
         "20150101",
         "20160202",
@@ -19,14 +19,6 @@ const static std::string DATES[] = {
         "20180404",
         "20190505",
 };
-const static std::string ALPHA = "/alpha";
-const static std::string ORDER_LOG = "/order_log";
-const static std::string PREV_TRADE_INFO = "/prev_trade_info";
-const static std::string TWAP_ORDER = "/twap_order";
-const static std::string PNL_AND_POSITION = "/pnl_and_position";
-const static std::string OUTPUT_PREFIX = "/Users/yongzaodan/Downloads/output";
-
-bool compareBinaryFiles(const std::string& file1, const std::string& file2);
 
 class BaseLineTest : public ::testing::Test {};
 
@@ -133,39 +125,14 @@ TEST_F(BaseLineTest, base_line_test) {
 
         for (const auto & session : SESSIONS) {
             std::string suffix = "_" + std::to_string(session.first) + "_" + std::to_string(session.second);
-            EXPECT_TRUE(compareBinaryFiles(
+            compareTWAPFiles(
                     DATA_PREFIX + date + TWAP_ORDER + suffix,
-                    OUTPUT_PREFIX + TWAP_ORDER + "/" + date + suffix));
-            std::cout << date << " twap_order_" << session.first << "_" << session.second << " pass" << std::endl;
-            EXPECT_TRUE(compareBinaryFiles(
+                    STD_OUTPUT_PREFIX + TWAP_ORDER + "/" + date + suffix);
+            comparePNLFiles(
                     DATA_PREFIX + date + PNL_AND_POSITION + suffix,
-                    OUTPUT_PREFIX + PNL_AND_POSITION + "/" + date + suffix));
-            std::cout << date << " pnl_and_position_" << session.first << "_" << session.second << " pass" << std::endl;
+                    STD_OUTPUT_PREFIX + PNL_AND_POSITION + "/" + date + suffix);
         }
     }
 
     std::cout << "Baseline pass" << std::endl;
-}
-
-bool compareBinaryFiles(const std::string& file1, const std::string& file2) {
-    std::ifstream binaryFile1(file1, std::ios::binary);
-    std::ifstream binaryFile2(file2, std::ios::binary);
-
-    char char1, char2;
-    bool filesEqual = true;
-    while (binaryFile1.get(char1) && binaryFile2.get(char2)) {
-        if (char1 != char2) {
-            filesEqual = false;
-            break;
-        }
-    }
-
-    if (binaryFile1.eof() != binaryFile2.eof()) {
-        filesEqual = false;
-    }
-
-    binaryFile1.close();
-    binaryFile2.close();
-
-    return filesEqual;
 }

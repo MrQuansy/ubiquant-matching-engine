@@ -34,7 +34,8 @@ TEST_F(HeapFunctionTest, heap_function_test) {
     int lastTime = 0, lastType = 0;
     while (!maxBinaryHeap.isEmpty()) {
         OrderLog orderLog = maxBinaryHeap.pop();
-        if (_abs(lastPrice - orderLog.price) > EPS) {
+        //if (_abs(lastPrice - orderLog.price) > EPS) {
+        if (lastPrice != orderLog.price) {
             EXPECT_GT(lastPrice, orderLog.price);
         } else if (lastTime != orderLog.timestamp) {
             EXPECT_LT(lastTime, orderLog.timestamp);
@@ -66,7 +67,8 @@ TEST_F(HeapFunctionTest, heap_function_test) {
     lastTime = 0;
     while (!minBinaryHeap.isEmpty()) {
         OrderLog orderLog = minBinaryHeap.pop();
-        if (_abs(lastPrice - orderLog.price) > EPS) {
+        //if (_abs(lastPrice - orderLog.price) > EPS) {
+        if (lastPrice != orderLog.price) {
             EXPECT_LT(lastPrice, orderLog.price);
         } else if (lastTime != orderLog.timestamp) {
             EXPECT_LT(lastTime, orderLog.timestamp);

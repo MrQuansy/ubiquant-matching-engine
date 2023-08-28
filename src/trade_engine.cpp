@@ -18,29 +18,6 @@ void TradeEngine::initContract(const std::string &instrument, const double &prev
             new ContractEngine(session.first, session.second, prevTradeInfo);
 }
 
-void TradeEngine::insertOrderLog(
-        const std::string &instrument,
-        const long long &timestamp,
-        const int &type,
-        const int &direction,
-        const int &volume,
-        const double &priceOff) {
-
-    if (!timestampOffset) {
-        timestampOffset = timestamp;
-    }
-
-    unsigned char d = direction == -1 ? Sale : Buy;
-    OrderLog orderLog = {
-            .timestamp = static_cast<int>(timestamp - timestampOffset),
-            .volume = volume,
-            .price = priceOff,
-            .instrument = instrumentToIdMap[instrument],
-            .directionAndType = (unsigned char) (d | type)
-    };
-    contractEngineMap[orderLog.instrument]->insertOrderLog(orderLog);
-}
-
 void TradeEngine::insertAlpha(const std::string &instrument, const long long &timestamp, const int &targetVolume) {
     Alpha alpha = {
             .timestamp = static_cast<int>(timestamp - timestampOffset),
@@ -50,11 +27,47 @@ void TradeEngine::insertAlpha(const std::string &instrument, const long long &ti
     contractEngineMap[alpha.instrument]->insertAlpha(alpha);
 }
 
+void TradeEngine::insertOrderLog(
+        const std::string &instrument,
+        const long long &timestamp,
+        const int &type,
+        const int &direction,
+        const int &volume,
+        const double &priceOff) {
+
+    if (timestampOffset == -1) {
+        timestampOffset = timestamp;
+    }
+
+    unsigned char d = direction == -1 ? Sale : Buy;
+    OrderLog orderLog = {
+            .timestamp = static_cast<int>(timestamp - timestampOffset),
+            .volume = volume,
+            .price = priceOff,
+            .instrument = instrumentToIdMap[instrument],
+            .directionAndType = (unsigned char) ((d << DIRECTION_OFFSET) | type)
+    };
+    contractEngineMap[orderLog.instrument]->insertOrderLog(orderLog);
+}
+
+void TradeEngine::onComplete() {
+    for (auto &contractEngine : contractEngineMap) {
+        contractEngine.second->onComplete();
+    }
+
+    std::vector<twap_order> twapOrders = getTWAPOrders();
+    std::vector<pnl_and_pos> pnlAndPos = getPNLAndPos();
+
+    // TODO: Network transport
+}
+
 std::vector<twap_order> TradeEngine::getTWAPOrders() {
     std::vector<twap_order> twapOrders;
     for (auto &contractEngine : contractEngineMap) {
-        std::vector<OrderLog> contractTwapOrders = contractEngine.second->getTwapOrders();
-        for (auto &orderLog : contractTwapOrders) {
+        int twapSize = contractEngine.second->getTwapSize();
+        OrderLog* contractTwapOrders = contractEngine.second->getTwapOrders();
+        for (int i = 0; i < twapSize; i++) {
+            OrderLog orderLog = contractTwapOrders[i];
             int direction = orderLog.directionAndType >> DIRECTION_OFFSET;
             direction = direction == Sale ? -1 : 1;
             twap_order twapOrder = {
