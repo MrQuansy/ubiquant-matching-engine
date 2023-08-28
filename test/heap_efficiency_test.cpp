@@ -4,25 +4,28 @@
 
 #include "../src/common.h"
 #include "../src/binary_heap.h"
+#include "gtest/gtest.h"
 
 #include <queue>
 
 const int N = 1E7;
 
-int main() {
+class HeapEfficiencyTest : public ::testing::Test {};
+
+TEST_F(HeapEfficiencyTest, heap_efficiency_test) {
     std::srand(std::time(nullptr));
 
     printf("Test efficiency of BinaryHeap...\n");
 
     auto start = std::chrono::high_resolution_clock::now();
-    BinaryHeap<OrderLog, maxHeapCmp> maxBinaryHeap(N);
+    BinaryHeap maxBinaryHeap(N, new MaxBinaryHeapCmp());
     for (int i = 0; i < N; i++) {
         OrderLog orderLog = {
                 std::rand(),
                 std::rand(),
                 (double) (std::rand() % 100000) / 100.0,
-                std::rand() % 256,
-                std::rand() % 256
+                static_cast<unsigned char>(std::rand() % 256),
+                static_cast<unsigned char>(std::rand() % 256)
         };
         maxBinaryHeap.insert(orderLog);
     }
@@ -34,7 +37,7 @@ int main() {
     }
     auto bhPopTime = std::chrono::high_resolution_clock::now() - start;
 
-    std::priority_queue<OrderLog, std::vector<OrderLog>, minHeapCmp> pq;
+    std::priority_queue<OrderLog, std::vector<OrderLog>, MinBinaryHeapCmp> pq;
     start = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < N; i++) {
         //pq.push(std::rand());
@@ -42,8 +45,8 @@ int main() {
                 std::rand(),
                 std::rand(),
                 (double) (std::rand() % 100000) / 100.0,
-                std::rand() % 256,
-                std::rand() % 256
+                static_cast<unsigned char>(std::rand() % 256),
+                static_cast<unsigned char>(std::rand() % 256)
         };
         pq.push(orderLog);
     }

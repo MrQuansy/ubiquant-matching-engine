@@ -7,23 +7,22 @@
 
 #include <cstdio>
 
-template <typename T, typename Compare>
 struct BinaryHeap {
 
-    T* heapArray;
+    OrderLog* heapArray;
     int capacity;
     int _size;
-    Compare cmp;
+    Compare* cmp;
 
-    BinaryHeap(int capacity) : capacity(capacity), _size(0) {
-        heapArray = new T[capacity + 5];
+    BinaryHeap(int capacity, Compare* cmp) : capacity(capacity), _size(0), cmp(cmp) {
+        heapArray = new OrderLog[capacity + 5];
     }
 
     ~BinaryHeap() {
         delete[] heapArray;
     }
 
-    int size() {
+    int size() const {
         return _size;
     }
 
@@ -31,31 +30,35 @@ struct BinaryHeap {
         return _size == 0;
     }
 
-    void insert(const T& value) {
+    void insert(const OrderLog& value) {
         int index = ++_size;
         for (int father = index >> 1;
-            index > 1 && cmp(value, heapArray[father]);
+            index > 1 && (*cmp)(value, heapArray[father]);
             index = father, father >>= 1) {
             heapArray[index] = heapArray[father];
         }
         heapArray[index] = value;
     }
 
-    T top() {
+    OrderLog top() const {
         return heapArray[1];
     }
 
-    T pop() {
-        T top = heapArray[1];
+    OrderLog* topPtr() const {
+        return &heapArray[1];
+    }
+
+    OrderLog pop() {
+        OrderLog top = heapArray[1];
 
         int index = 1;
-        T last = heapArray[_size--];
+        OrderLog last = heapArray[_size--];
         for (int maxChild = 2; maxChild <= _size; index = maxChild, maxChild <<= 1) {
-            if (maxChild < _size && cmp(heapArray[maxChild + 1], heapArray[maxChild])) {
+            if (maxChild < _size && (*cmp)(heapArray[maxChild + 1], heapArray[maxChild])) {
                 maxChild++;
             }
 
-            if (cmp(last, heapArray[maxChild])) {
+            if ((*cmp)(last, heapArray[maxChild])) {
                 break;
             } else {
                 heapArray[index] = heapArray[maxChild];
@@ -69,7 +72,7 @@ struct BinaryHeap {
     // Test Only
     void printPrice() {
         for (int i = 1; i <= _size; i++) {
-            std::printf("%lf ", heapArray[i].priceOff);
+            std::printf("%lf ", heapArray[i].price);
         }
         std::printf("\n");
     }
