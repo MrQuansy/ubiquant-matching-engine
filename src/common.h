@@ -32,10 +32,17 @@ const static double ROUND_MULTI = 1E6;
 const static int ROUND_DIV = 1E3;
 const static int ROUND_MOD = 10;
 const static int ROUND_CMP = 4;
+const static double FLOOR = 0.5 - EPS;
 inline double highPrecisionRound2(const double &x) {
-    int y = std::round(x * ROUND_MULTI) / ROUND_DIV;
-    y = (y % ROUND_MOD > ROUND_CMP) ? y / 10 + 1 : y / 10;
-    return y / 100.0;
+    double sign = x < 0 ? -1.0 : 1.0;
+    double y = x * 100.0 * sign;
+    double _y = (long long) y;
+    _y += y - _y > FLOOR ? 1.0 : 0.0;
+    return _y / 100.0 * sign;
+
+//    int y = std::round((x - (long long) x) * ROUND_MULTI) / ROUND_DIV;
+//    y = (y % ROUND_MOD > ROUND_CMP) ? y / 10 + 1 : y / 10;
+//    return (double) y / 100.0;
 }
 
 const static int MAX_TWAP_LENGTH = 480 * 5;
@@ -64,8 +71,8 @@ const static std::string PNL_AND_POSITION = "/pnl_and_position";
 const static bool ENABLE_DEBUG_TRADE_LOG = false;
 const static std::string DEBUG_PREFIX = "/mnt/logs/";
 const static std::string DEBUG_DATE = "20150101";
-const static std::string DEBUG_INSTRUMENT = "100.UBE";
-const static std::pair<int, int> DEBUG_SESSION = SESSIONS[4];
+const static std::string DEBUG_INSTRUMENT = "000.UBE";
+const static std::pair<int, int> DEBUG_SESSION = SESSIONS[0];
 
 const static std::string STD_LOG_PREFIX = "/mnt/log_adjust/";
 
