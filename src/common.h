@@ -12,14 +12,30 @@
 #include <iostream>
 #include <cmath>
 
-// const static double EPS = 1E-4;
+const static double EPS = 1E-6;
 const static int MAX_INT = ~0U >> 1;
 const static unsigned char TYPE_MASK = 7;
 const static unsigned char DIRECTION_MASK = 8;
 const static unsigned char DIRECTION_OFFSET = 3;
 
-inline double round2(const double &x) {
-    return std::round(x * 100.0) / 100.0;
+#define _abs(x) ((x) < 0 ? -(x) : (x))
+#define _min(x, y) ((x) < (y) ? (x) : (y))
+#define _max(x, y) ((x) > (y) ? (x) : (y))
+
+#define _eq(x, y) (_abs((x) - (y)) <= EPS)
+#define _neq(x, y) (_abs((x) - (y)) > EPS)
+#define _le(x, y) ((x) < (y) && _neq(x, y))
+#define _gt(x, y) ((x) > (y) && _neq(x, y))
+
+// Use this function carefully since it's time-consuming
+const static double ROUND_MULTI = 1E6;
+const static int ROUND_DIV = 1E3;
+const static int ROUND_MOD = 10;
+const static int ROUND_CMP = 4;
+inline double highPrecisionRound2(const double &x) {
+    int y = std::round(x * ROUND_MULTI) / ROUND_DIV;
+    y = (y % ROUND_MOD > ROUND_CMP) ? y / 10 + 1 : y / 10;
+    return y / 100.0;
 }
 
 const static int MAX_TWAP_LENGTH = 480 * 5;
@@ -47,14 +63,10 @@ const static std::string PNL_AND_POSITION = "/pnl_and_position";
 const static bool ENABLE_DEBUG_TRADE_LOG = true;
 const static std::string DEBUG_PREFIX = "/mnt/logs/";
 const static std::string DEBUG_DATE = "20150101";
-const static std::string DEBUG_INSTRUMENT = "000.UBE";
-const static std::pair<int, int> DEBUG_SESSION = SESSIONS[0];
+const static std::string DEBUG_INSTRUMENT = "100.UBE";
+const static std::pair<int, int> DEBUG_SESSION = SESSIONS[4];
 
 const static std::string STD_LOG_PREFIX = "/mnt/log_adjust/";
-
-#define _abs(x) ((x) < 0 ? -(x) : (x))
-#define _min(x, y) ((x) < (y) ? (x) : (y))
-#define _max(x, y) ((x) > (y) ? (x) : (y))
 
 enum ContractType : unsigned char {
     PriceLimit = (unsigned char) 0,
@@ -96,8 +108,7 @@ struct Compare {
 struct MinBinaryHeapCmp : Compare {
     // return true if o1.price < o2.price || (o1.price == o2.price && o1.timestamp < o2.timestamp)
     bool operator () (const OrderLog &o1, const OrderLog &o2) const override {
-        //if (_abs(o1.price - o2.price) > EPS) {
-        if (o1.price != o2.price) {
+        if (_neq(o1.price, o2.price)) {
             // 1. Trade minimal price
             return o1.price < o2.price;
         }
@@ -112,8 +123,7 @@ struct MinBinaryHeapCmp : Compare {
 struct MaxBinaryHeapCmp : Compare {
     // return true if o1.price > o2.price || (o1.price == o2.price && o1.timestamp < o2.timestamp)
     bool operator () (const OrderLog &o1, const OrderLog &o2) const override {
-        //if (_abs(o1.price - o2.price) > EPS) {
-        if (o1.price != o2.price) {
+        if (_neq(o1.price, o2.price)) {
             // 1. Trade maximal price
             return o1.price > o2.price;
         }
@@ -183,7 +193,7 @@ struct twap_order {
 
     bool operator == (const twap_order &o) const {
         return std::strcmp(instrumentId, o.instrumentId) == 0 && timestamp == o.timestamp &&
-               direction == o.direction && volume == o.volume && price == o.price; //_abs(price - o.price) < EPS;
+               direction == o.direction && volume == o.volume && _eq(price, o.price);
     }
 
     friend std::ostream& operator<<(std::ostream& os, const twap_order& o) {
@@ -207,7 +217,7 @@ struct pnl_and_pos {
     }
 
     bool operator == (const pnl_and_pos &o) const {
-        return std::strcmp(instrumentId, o.instrumentId) == 0 && position == o.position && pnl == o.pnl; //_abs(pnl - o.pnl) < EPS;
+        return std::strcmp(instrumentId, o.instrumentId) == 0 && position == o.position && _eq(pnl, o.pnl);
     }
 
     friend std::ostream& operator<<(std::ostream& os, const pnl_and_pos& o) {

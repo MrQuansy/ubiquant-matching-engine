@@ -25,11 +25,11 @@ class BaseLineTest : public ::testing::Test {};
 TEST_F(BaseLineTest, base_line_test) {
     for (const auto& date : DATES) {
         // Init engines
-        TradeEngine tradeEngines[5] = {
-                TradeEngine(SESSIONS[0]),
-                TradeEngine(SESSIONS[1]),
-                TradeEngine(SESSIONS[2]),
-                TradeEngine(SESSIONS[3]),
+        TradeEngine tradeEngines[] = {
+                //TradeEngine(SESSIONS[0]),
+                //TradeEngine(SESSIONS[1]),
+                //TradeEngine(SESSIONS[2]),
+                //TradeEngine(SESSIONS[3]),
                 TradeEngine(SESSIONS[4])
         };
 
@@ -46,55 +46,42 @@ TEST_F(BaseLineTest, base_line_test) {
             }
         }
         prevTradeInfoFile.close();
-        std::cout << date << " prev_trade_info read successfully" << std::endl;
+        std::cout << date << " prev_trade_info read and init successfully" << std::endl;
+
+        auto start = std::chrono::high_resolution_clock::now();
+        // Read alpha
+        alpha a{};
+        std::ifstream alphaFile(DATA_PREFIX + date + ALPHA, std::ios::binary);
+        while (alphaFile.read(reinterpret_cast<char*>(&a), sizeof(alpha))) {
+            for (auto & tradeEngine : tradeEngines) {
+                tradeEngine.insertAlpha(
+                        std::string(a.instrument_id),
+                        a.timestamp,
+                        a.target_volume
+                );
+            }
+        }
+        alphaFile.close();
+        std::cout << date << " alpha read and insert successfully" << std::endl;
 
         // Read order_log
         order_log orderLog{};
-        std::vector<order_log> orderLogs;
         std::ifstream orderLogFile(DATA_PREFIX + date + ORDER_LOG, std::ios::binary);
         while (orderLogFile.read(reinterpret_cast<char*>(&orderLog), sizeof(order_log))) {
-            orderLogs.push_back(orderLog);
-        }
-        orderLogFile.close();
-        std::cout << date << " order_log read successfully" << std::endl;
-
-        // Read alpha
-        alpha a{};
-        std::vector<alpha> alphas;
-        std::ifstream alphaFile(DATA_PREFIX + date + ALPHA, std::ios::binary);
-        while (alphaFile.read(reinterpret_cast<char*>(&a), sizeof(alpha))) {
-            alphas.push_back(a);
-        }
-        alphaFile.close();
-        std::cout << date << " alpha read successfully" << std::endl;
-
-        // Trading
-        auto start = std::chrono::high_resolution_clock::now();
-        int oPos = 0, aPos = 0;
-        while (oPos < orderLogs.size() || aPos < alphas.size()) {
-            if (aPos == alphas.size() || (oPos < orderLogs.size() && orderLogs[oPos].timestamp <= alphas[aPos].timestamp)) {
-                for (auto & tradeEngine : tradeEngines) {
-                    tradeEngine.insertOrderLog(
-                            std::string(orderLogs[oPos].instrument_id),
-                            orderLogs[oPos].timestamp,
-                            orderLogs[oPos].type,
-                            orderLogs[oPos].direction,
-                            orderLogs[oPos].volume,
-                            orderLogs[oPos].price_off
-                    );
-                }
-                oPos++;
-            } else {
-                for (auto & tradeEngine : tradeEngines) {
-                    tradeEngine.insertAlpha(
-                            std::string(alphas[aPos].instrument_id),
-                            alphas[aPos].timestamp,
-                            alphas[aPos].target_volume
-                    );
-                }
-                aPos++;
+            for (auto & tradeEngine : tradeEngines) {
+                tradeEngine.insertOrderLog(
+                        std::string(orderLog.instrument_id),
+                        orderLog.timestamp,
+                        orderLog.type,
+                        orderLog.direction,
+                        orderLog.volume,
+                        orderLog.price_off
+                );
             }
         }
+        orderLogFile.close();
+        std::cout << date << " order_log read and insert successfully" << std::endl;
+
         auto tradeTime = std::chrono::high_resolution_clock::now() - start;
         std::cout << date << " trading successfully, trade time: ";
         std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(tradeTime).count() << " ms" << std::endl;

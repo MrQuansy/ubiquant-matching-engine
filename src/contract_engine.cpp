@@ -13,6 +13,7 @@ void ContractEngine::insertAlpha(Alpha alpha) {
 
     targetVolume = alpha.targetVolume;
     unsigned char direction = (diff > 0 ? Buy : Sale) << DIRECTION_OFFSET;
+    diff = _abs(diff);
     for (int i = 0; i < sessionNum; i++) {
         // Timestamp, volume and direction for all TWAP orders could be calculated in advance
         twapOrders[twapSize++] = {
@@ -33,7 +34,7 @@ void ContractEngine::insertOrderLog(OrderLog orderLog) {
     int direction = (orderLog.directionAndType & DIRECTION_MASK) >> DIRECTION_OFFSET;
     double basePrice, _upLimit, _downLimit;
 
-//    if (orderLog.timestamp == 18173) {
+//    if (orderLog.timestamp == 26593) {
 //        double z = getCurrentBasePrice(direction);
 //        std::cout << "DEBUG! " << z << std::endl;
 //    }
@@ -47,23 +48,24 @@ void ContractEngine::insertOrderLog(OrderLog orderLog) {
                 // price = basePrice + priceOff for PriceLimitContract
                 basePrice = getCurrentBasePrice(direction);
                 orderLog.price = basePrice + orderLog.price;
+                //orderLog.price = round2(basePrice + orderLog.price);
 
                 if (direction == Buy) {
                     // Rule 3.3.16 buyPrice <= max(basePrice * 1.02, basePrice + 0.01 * 10)
                     _upLimit = _max(basePrice * 1.02, basePrice + 0.1);
                     _upLimit = _min(_upLimit, upLimit);
-                    _upLimit = round2(_upLimit);
+                    _upLimit = highPrecisionRound2(_upLimit);
 
                     _downLimit = downLimit;
                 } else {
                     // Rule 3.3.16 salePrice >= min(basePrice * 0.98, basePrice - 0.01 * 10)
                     _downLimit = _min(basePrice * 0.98, basePrice - 0.1);
                     _downLimit = _max(_downLimit, downLimit);
-                    _downLimit = round2(_downLimit);
+                    _downLimit = highPrecisionRound2(_downLimit);
 
                     _upLimit = upLimit;
                 }
-                if (orderLog.price < _downLimit || _upLimit < orderLog.price) {
+                if (_le(orderLog.price, _downLimit) || _le(_upLimit, orderLog.price)) {
                     break;
                 }
 
@@ -97,10 +99,10 @@ void ContractEngine::insertOrderLog(OrderLog orderLog) {
         if (ENABLE_DEBUG_TRADE_LOG) {
             (*logFile) << orderLog;
             if (type == PriceLimit) {
-                (*logFile) << ", price=" << std::fixed << std::setprecision(6) << orderLog.price
-                           << ", base_price=" << std::fixed << std::setprecision(6) << basePrice
-                           << ", up_limit=" << std::fixed << std::setprecision(6) << _upLimit
-                           << ", down_limit=" << std::fixed << std::setprecision(6) << _downLimit;
+                (*logFile) << ", price=" << std::fixed << std::setprecision(6) << highPrecisionRound2(orderLog.price)
+                           << ", base_price=" << std::fixed << std::setprecision(6) << highPrecisionRound2(basePrice)
+                           << ", up_limit=" << std::fixed << std::setprecision(6) << highPrecisionRound2(_upLimit)
+                           << ", down_limit=" << std::fixed << std::setprecision(6) << highPrecisionRound2(_downLimit);
             }
             (*logFile) << std::endl;
         }
@@ -120,8 +122,7 @@ void ContractEngine::insertOrderLog(OrderLog orderLog) {
                 double lastPriceLevel = -1;
                 while (orderLog.volume > 0 && !heap->isEmpty()) {
                     OrderLog topOrder = heap->top();
-                    //if (_abs(topOrder.price - lastPriceLevel) > EPS) {
-                    if (topOrder.price != lastPriceLevel) {
+                    if (_neq(topOrder.price, lastPriceLevel)) {
                         // Five best limit
                         ++levelNum;
                         lastPriceLevel = topOrder.price;
@@ -227,26 +228,27 @@ double ContractEngine::getCurrentBasePrice(const unsigned char &direction) {
 
 void ContractEngine::processTwapOrdersIfNecessary(int currentTime) {
     while (twapHead < twapSize && twapOrders[twapHead].timestamp < currentTime) {
-        OrderLog orderLog = twapOrders[twapHead++];
-        int direction = orderLog.directionAndType >> DIRECTION_OFFSET;
-        if (orderLog.volume) {
-            // Insert orderLog if volume > 0
+        OrderLog *orderLog = &twapOrders[twapHead++];
+        int direction = orderLog->directionAndType >> DIRECTION_OFFSET;
+        orderLog->price = getCurrentBasePrice(direction);
+        if (orderLog->volume) {
+            // Insert orderLog if volume != 0
             switch (direction) {
                 case Buy:
-                    buyHeap->insert(orderLog);
+                    buyHeap->insert(*orderLog);
                     break;
                 case Sale:
-                    saleHeap->insert(orderLog);
+                    saleHeap->insert(*orderLog);
                     break;
             }
         }
 
         if (ENABLE_DEBUG_TRADE_LOG) {
             (*logFile) << "twap order: "
-                       << "timestamp=" << orderLog.timestamp << ", "
-                       << "direction=" << ((int) (orderLog.directionAndType >> DIRECTION_OFFSET) ? 1 : -1) << ", "
-                       << "volume=" << orderLog.volume << ", "
-                       << "price=" << std::fixed << std::setprecision(6) << orderLog.price << std::endl;
+                       << "timestamp=" << orderLog->timestamp << ", "
+                       << "direction=" << ((int) (orderLog->directionAndType >> DIRECTION_OFFSET) ? 1 : -1) << ", "
+                       << "volume=" << orderLog->volume << ", "
+                       << "price=" << std::fixed << std::setprecision(6) << orderLog->price << std::endl;
         }
 
         processTrade();
@@ -256,8 +258,7 @@ void ContractEngine::processTwapOrdersIfNecessary(int currentTime) {
 // Update lastPrice, return tradeVolume and update income if necessary
 int ContractEngine::tradeOrder(const OrderLog &saleOrder, const OrderLog &buyOrder) {
     double tradePrice;
-    //if (_abs(saleOrder.price - buyOrder.price) < EPS) {
-    if (saleOrder.price == buyOrder.price) {
+    if (_eq(saleOrder.price, buyOrder.price)) {
         tradePrice = saleOrder.price;
     } else {
         // Rule 3.4.4
@@ -285,8 +286,7 @@ void ContractEngine::processTrade() {
     while (!saleHeap->isEmpty() && !buyHeap->isEmpty()) {
         OrderLog* saleOrder = saleHeap->topPtr();
         OrderLog* buyOrder = buyHeap->topPtr();
-        //if (saleOrder->price > buyOrder->price && _abs(saleOrder->price - buyOrder->price) > EPS) {
-        if (saleOrder->price > buyOrder->price) {
+        if (_gt(saleOrder->price, buyOrder->price)) {
             break;
         }
 
@@ -315,5 +315,5 @@ int ContractEngine::getPosition() const {
 }
 
 double ContractEngine::getPNL() const {
-    return lastPrice * volume - prevTradeInfo.prevClosePrice * prevTradeInfo.prevPosition + income;
+    return highPrecisionRound2(lastPrice * volume - prevTradeInfo.prevClosePrice * prevTradeInfo.prevPosition + income);
 }
