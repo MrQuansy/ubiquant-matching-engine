@@ -8,13 +8,15 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 # O3 optimization
 if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -pthread")
 endif()
 
 # UbiquantMatchingEngine Configuration
 # include_directories(.)
-add_executable(UbiquantMatchingEngine
-        src/binary_heap.h src/common.h src/trade_engine.h src/contract_engine.h src/contract_engine.cpp src/trade_engine.cpp)
+#add_executable(UbiquantMatchingEngine
+#        src/binary_heap.h src/common.h src/trade_engine.h src/contract_engine.h src/contract_engine.cpp src/trade_engine.cpp)
+
+add_executable(entrance src/binary_heap.h src/common.h src/trade_engine.h src/contract_engine.h src/contract_engine.cpp src/trade_engine.cpp src/entrance.cpp)
 
 # Google Test Configuration
 set(GOOGLETEST_VERSION 1.14.0)

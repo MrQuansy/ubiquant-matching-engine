@@ -11,12 +11,26 @@
 #include <utility>
 #include <iostream>
 #include <cmath>
+#include <atomic>
 
 const static double EPS = 1E-6;
 const static int MAX_INT = ~0U >> 1;
 const static unsigned char TYPE_MASK = 7;
 const static unsigned char DIRECTION_MASK = 8;
 const static unsigned char DIRECTION_OFFSET = 3;
+
+#define WORKER_THREAD_NUM 1
+
+constexpr time_t MICRO_TO_NANO = 1000;
+constexpr time_t MILLI_TO_NANO = 1000000;
+constexpr time_t SECOND_TO_NANO = 1000000000;
+inline time_t now()
+{
+    static time_t t0 = time(NULL);
+    static timespec t;
+    clock_gettime(CLOCK_REALTIME, &t);
+    return (t.tv_sec - t0) * SECOND_TO_NANO + t.tv_nsec;
+}
 
 #define _abs(x) ((x) < 0 ? -(x) : (x))
 #define _min(x, y) ((x) < (y) ? (x) : (y))
@@ -50,6 +64,7 @@ const static std::pair<int, int> SESSIONS[5] = {
 
 // Input path: DATA_PREFIX + DATE + FILE_NAME
 const static std::string DATA_PREFIX = "/mnt/data/";
+//const static std::string DATA_PREFIX = "/Users/mrquan/Desktop/quant/data/";
 const static std::string ALPHA = "/alpha";
 const static std::string ORDER_LOG = "/order_log";
 const static std::string PREV_TRADE_INFO = "/prev_trade_info";
