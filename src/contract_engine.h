@@ -27,8 +27,8 @@ public:
         volume = targetVolume = prevTradeInfo.prevPosition;
 
         // Rule 3.3.13 0.9 * prevClosePrice <= price <= 1.1 * prevClosePrice
-        upLimit = round2(prevTradeInfo.prevClosePrice * 1.1);
-        downLimit = round2(prevTradeInfo.prevClosePrice * 0.9);
+        upLimit = highPrecisionRound2(prevTradeInfo.prevClosePrice * 1.1);
+        downLimit = highPrecisionRound2(prevTradeInfo.prevClosePrice * 0.9);
 
         saleHeap = new BinaryHeap(HEAP_SIZE, new MinBinaryHeapCmp());
         buyHeap = new BinaryHeap(HEAP_SIZE, new MaxBinaryHeapCmp());

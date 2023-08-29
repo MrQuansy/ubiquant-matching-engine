@@ -19,6 +19,11 @@ void TradeEngine::initContract(const std::string &instrument, const double &prev
 }
 
 void TradeEngine::insertAlpha(const std::string &instrument, const long long &timestamp, const int &targetVolume) {
+
+    if (timestampOffset == -1 && !ENABLE_DEBUG_TRADE_LOG) {
+        timestampOffset = timestamp;
+    }
+
     Alpha alpha = {
             .timestamp = static_cast<int>(timestamp - timestampOffset),
             .targetVolume = targetVolume,
@@ -34,10 +39,6 @@ void TradeEngine::insertOrderLog(
         const int &direction,
         const int &volume,
         const double &priceOff) {
-
-    if (timestampOffset == -1) {
-        timestampOffset = timestamp;
-    }
 
     unsigned char d = direction == -1 ? Sale : Buy;
     OrderLog orderLog = {

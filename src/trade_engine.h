@@ -23,7 +23,7 @@ public:
 
     TradeEngine(std::pair<int, int> session) : session(std::move(session)) {
         lastId = 0;
-        timestampOffset = -1;
+        timestampOffset = ENABLE_DEBUG_TRADE_LOG ? 0 : -1;
     }
 
     ~TradeEngine() {
