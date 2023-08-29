@@ -55,12 +55,13 @@ const static std::string ORDER_LOG = "/order_log";
 const static std::string PREV_TRADE_INFO = "/prev_trade_info";
 
 // Output Path: OUTPUT_PREFIX + DATE + FILE_NAME + SESSION
-const static std::string STD_OUTPUT_PREFIX = "/mnt/output";
+const static std::string TEST_OUTPUT_PREFIX = "/mnt/test_data/";
+const static std::string STD_OUTPUT_PREFIX = "/mnt/output_adjuest";
 const static std::string TWAP_ORDER = "/twap_order";
 const static std::string PNL_AND_POSITION = "/pnl_and_position";
 
 // Debug Fields
-const static bool ENABLE_DEBUG_TRADE_LOG = true;
+const static bool ENABLE_DEBUG_TRADE_LOG = false;
 const static std::string DEBUG_PREFIX = "/mnt/logs/";
 const static std::string DEBUG_DATE = "20150101";
 const static std::string DEBUG_INSTRUMENT = "100.UBE";

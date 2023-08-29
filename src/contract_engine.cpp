@@ -268,9 +268,11 @@ int ContractEngine::tradeOrder(const OrderLog &saleOrder, const OrderLog &buyOrd
 
     int tradeVolume = _min(saleOrder.volume, buyOrder.volume);
     if ((saleOrder.directionAndType & TYPE_MASK) == MyContract) {
-        income += tradePrice * tradeVolume;
+        income += highPrecisionRound2(tradePrice * tradeVolume);
+        volume -= tradeVolume;
     } else if ((buyOrder.directionAndType & TYPE_MASK) == MyContract) {
-        income -= tradePrice * tradeVolume;
+        income -= highPrecisionRound2(tradePrice * tradeVolume);
+        volume += tradeVolume;
     }
 
     if (ENABLE_DEBUG_TRADE_LOG) {
