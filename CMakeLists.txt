@@ -15,6 +15,11 @@ endif()
 # include_directories(.)
 add_executable(UbiquantMatchingEngine
         src/binary_heap.h src/common.h src/trade_engine.h src/contract_engine.h src/contract_engine.cpp src/trade_engine.cpp)
+add_executable(NetServer
+        src/net/server.cpp)
+find_package(Threads REQUIRED)
+target_link_libraries(NetServer Threads::Threads)
+
 
 # Google Test Configuration
 set(GOOGLETEST_VERSION 1.14.0)
@@ -24,3 +29,8 @@ add_executable(
         test_main test/test_main.cpp test/heap_function_test.cpp test/heap_efficiency_test.cpp test/heap_pack_test.cpp test/baseline_test.cpp
         src/binary_heap.h src/common.h src/trade_engine.h src/contract_engine.h src/contract_engine.cpp src/trade_engine.cpp test/test_main.cpp test/trade_engine_test.cpp test/binary_file_compare.h test/binary_file_compare.cpp)
 target_link_libraries(test_main gtest)
+
+
+
+add_executable(SenderTest
+        test/net_sender_test.cpp src/net/client.h)
