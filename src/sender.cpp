@@ -18,7 +18,7 @@ long long getSystemMillis() {
 }
 
 
-const int NUM_THREADS = 10;
+const int NUM_THREADS = 1;
 const int BASE_PORT = 20000;
 const char *const FILE_PATH = "/mnt/nettest/order_log_";
 const int BUFFER_SIZE = sizeof(OrderLog) * 100000;
