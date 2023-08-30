@@ -13,12 +13,6 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-
-#define ALIGN_ORDER_BUFFER_SIZE 1024*1024*512
-#define ALIGN_ALPHA_BUFFER_SIZE 1024*1024*2
-#define ALIGN_PREV_BUFFER_SIZE 1024*4
-#define READ_BUFFER_SIZE 1024*1024*360
-#define BUFFER_NUM 8
 #define INCR(INDEX) ((INDEX+1) & (BUFFER_NUM -1))
 
 enum buffer_flag{START,END,IN_PROCESS};
@@ -59,7 +53,7 @@ void load_path_list(const std::string& dir_path,std::vector<std::string> &path_l
         return;
     }
 
-    while((ptr = readdir(pDir))!=0)
+    while((ptr = readdir(pDir))!=nullptr)
     {
         if (strcmp(ptr->d_name, ".") != 0 && strcmp(ptr->d_name, "..") != 0)
         {
@@ -71,31 +65,38 @@ void load_path_list(const std::string& dir_path,std::vector<std::string> &path_l
 }
 
 int32_t direct_io_load(const std::string & path, int buffer_index) {
+    std::cout<< "[I/O Thread] Start loading file: " << path << std::endl;
+
     std::string order_file_name = path + ORDER_LOG;
     std::string alpha_file_name = path + ALPHA;
     std::string prev_info_file_name = path + PREV_TRADE_INFO;
     int fd[3];
-//    if((fd[0] = open(prev_info_file_name.c_str(), O_RDONLY | O_DIRECT))<0){
-//        std::cerr<<"open file error! "<<order_file_name<<std::endl;
-//    }
-//    if((fd[1] = open(alpha_file_name.c_str(), O_RDONLY | O_DIRECT))<0){
-//        std::cerr<<"open file error! "<<order_file_name<<std::endl;
-//    }
-//    if((fd[2] = open(order_file_name.c_str(), O_RDONLY | O_DIRECT))<0){
-//        std::cerr<<"open file error! "<<order_file_name<<std::endl;
-//    }
-
-    if((fd[0] = open(prev_info_file_name.c_str(), O_RDONLY))<0){
+    if((fd[0] = open(prev_info_file_name.c_str(), O_RDONLY | O_DIRECT))<0){
         std::cerr<<"open file error! "<<order_file_name<<std::endl;
     }
-    if((fd[1] = open(alpha_file_name.c_str(), O_RDONLY))<0){
+    if((fd[1] = open(alpha_file_name.c_str(), O_RDONLY | O_DIRECT))<0){
         std::cerr<<"open file error! "<<order_file_name<<std::endl;
     }
-    if((fd[2] = open(order_file_name.c_str(), O_RDONLY))<0){
+    if((fd[2] = open(order_file_name.c_str(), O_RDONLY | O_DIRECT))<0){
         std::cerr<<"open file error! "<<order_file_name<<std::endl;
     }
 
+//    if((fd[0] = open(prev_info_file_name.c_str(), O_RDONLY))<0){
+//        std::cerr<<"open file error! "<<order_file_name<<std::endl;
+//    }
+//    if((fd[1] = open(alpha_file_name.c_str(), O_RDONLY))<0){
+//        std::cerr<<"open file error! "<<order_file_name<<std::endl;
+//    }
+//    if((fd[2] = open(order_file_name.c_str(), O_RDONLY))<0){
+//        std::cerr<<"open file error! "<<order_file_name<<std::endl;
+//    }
+
+    time_t start_time = now();
+    time_t total_waiting_time = 0;
+    time_t start_waiting_time = now();
     while(buffers[buffer_index].finish_count.load()!=WORKER_THREAD_NUM);
+    total_waiting_time += now()-start_waiting_time;
+
     order_buffer * b = &buffers[buffer_index];
     b->flag = START;
     b->path = path.substr(10);
@@ -107,8 +108,6 @@ int32_t direct_io_load(const std::string & path, int buffer_index) {
     }
     close(fd[0]);
 
-    //std::cout<< "[I/O Thread] Finish prev trade info"<<std::endl;
-
     b->prev_count = offset / sizeof(prev_trade_info);
 
     offset = 0;
@@ -116,8 +115,6 @@ int32_t direct_io_load(const std::string & path, int buffer_index) {
         offset += bytesRead;
     }
     close(fd[1]);
-
-    //std::cout<< "[I/O Thread] Finish alpha"<<std::endl;
 
     b->alpha_count = offset / sizeof(alpha);
 
@@ -127,8 +124,10 @@ int32_t direct_io_load(const std::string & path, int buffer_index) {
         b->order_count = bytesRead / sizeof(order_log);
         b->finish_count = 0;
         buffer_index = INCR(buffer_index);
-        std::cout<< "[I/O Thread] Finish one order log segment"<<std::endl;
+        std::cout<< "[I/O Thread] Finish loading one order log segment"<<std::endl;
+        start_waiting_time = now();
         while(buffers[buffer_index].finish_count.load()!=WORKER_THREAD_NUM);
+        total_waiting_time += now()-start_waiting_time;
         b = &buffers[buffer_index];
         b->flag = IN_PROCESS;
         b->order_count = 0;
@@ -138,6 +137,9 @@ int32_t direct_io_load(const std::string & path, int buffer_index) {
     b->finish_count=0;
 
     close(fd[2]);
+    std::cout<< "[I/O Thread] Throughput: "<<offset/1024.0/1024/(now()-start_time)*SECOND_TO_NANO<<" mb/s"<<std::endl;
+    std::cout<< "[I/O Thread] Total waiting time: "<<total_waiting_time/MILLI_TO_NANO<<" ms"<<std::endl;
+    std::cout<< "[I/O Thread] End loading file: " << path << ". Time cost: "<<(now()-start_time)/MILLI_TO_NANO<<"ms"<<std::endl;
     return INCR(buffer_index);
 }
 

@@ -12,14 +12,13 @@
 #include <iostream>
 #include <cmath>
 #include <atomic>
+#include "config.h"
 
 const static double EPS = 1E-6;
 const static int MAX_INT = ~0U >> 1;
 const static unsigned char TYPE_MASK = 7;
 const static unsigned char DIRECTION_MASK = 8;
 const static unsigned char DIRECTION_OFFSET = 3;
-
-#define WORKER_THREAD_NUM 5
 
 constexpr time_t MICRO_TO_NANO = 1000;
 constexpr time_t MILLI_TO_NANO = 1000000;
@@ -59,8 +58,6 @@ inline double highPrecisionRound2(const double &x) {
 //    return (double) y / 100.0;
 }
 
-const static int MAX_TWAP_LENGTH = 480 * 5;
-
 const static std::pair<int, int> SESSIONS[5] = {
     std::make_pair(3, 1),
     std::make_pair(3, 3),
@@ -68,24 +65,6 @@ const static std::pair<int, int> SESSIONS[5] = {
     std::make_pair(5, 2),
     std::make_pair(5, 3)
 };
-
-// Input path: DATA_PREFIX + DATE + FILE_NAME
-const static std::string DATA_PREFIX = "/mnt/data/";
-//const static std::string DATA_PREFIX = "/Users/chenyanze/Downloads/test/";
-const static std::string ALPHA = "/alpha";
-const static std::string ORDER_LOG = "/order_log";
-const static std::string PREV_TRADE_INFO = "/prev_trade_info";
-
-// Output Path: OUTPUT_PREFIX + DATE + FILE_NAME + SESSION
-const static std::string TEST_OUTPUT_PREFIX = "/mnt/test_data/";
-const static std::string STD_OUTPUT_PREFIX = "/mnt/output_adjuest";
-const static std::string TWAP_ORDER = "/twap_order";
-const static std::string PNL_AND_POSITION = "/pnl_and_position";
-
-// Debug Fields
-const static bool ENABLE_DEBUG_TRADE_LOG = false;
-const static std::string DEBUG_PREFIX = "/mnt/logs/";
-const static std::string STD_LOG_PREFIX = "/mnt/log_adjust/";
 
 enum ContractType : unsigned char {
     PriceLimit = (unsigned char) 0,

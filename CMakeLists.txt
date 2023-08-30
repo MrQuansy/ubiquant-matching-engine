@@ -21,10 +21,8 @@ add_executable(NetServer
 find_package(Threads REQUIRED)
 target_link_libraries(NetServer Threads::Threads)
 
-#add_executable(UbiquantMatchingEngine
-#        src/binary_heap.h src/common.h src/trade_engine.h src/contract_engine.h src/contract_engine.cpp src/trade_engine.cpp)
-
-add_executable(entrance src/binary_heap.h src/common.h src/trade_engine.h src/contract_engine.h src/contract_engine.cpp src/trade_engine.cpp src/entrance.cpp)
+add_executable(entrance src/binary_heap.h src/common.h src/trade_engine.h src/contract_engine.h src/config.h src/contract_engine.cpp src/trade_engine.cpp src/entrance.cpp)
+add_executable(baseline_entrance src/binary_heap.h src/common.h src/trade_engine.h src/contract_engine.h src/config.h src/contract_engine.cpp src/trade_engine.cpp src/baseline_entrance.cpp)
 
 # Google Test Configuration
 set(GOOGLETEST_VERSION 1.14.0)
