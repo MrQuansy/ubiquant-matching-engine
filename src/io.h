@@ -1,6 +1,10 @@
 //
 // Created by Quansiyi on 2023/8/29.
 //
+
+#ifndef UBIQUANTMATCHINGENGINE_IO_H
+#define UBIQUANTMATCHINGENGINE_IO_H
+
 #include "common.h"
 #include <sys/types.h>
 #include <dirent.h>
@@ -9,8 +13,6 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-#ifndef UBIQUANTMATCHINGENGINE_IO_H
-#define UBIQUANTMATCHINGENGINE_IO_H
 
 #define ALIGN_ORDER_BUFFER_SIZE 1024*1024*512
 #define ALIGN_ALPHA_BUFFER_SIZE 1024*1024*2
@@ -29,6 +31,7 @@ struct order_buffer {
     uint32_t alpha_count;
     uint32_t order_count;
     buffer_flag flag;
+    std::string path;
 
     order_buffer():prev_count(0),alpha_count(0),order_count(0),finish_count(WORKER_THREAD_NUM),flag(IN_PROCESS){
         if(posix_memalign(&order_data,ALIGN_ORDER_BUFFER_SIZE,ALIGN_ORDER_BUFFER_SIZE)!=0){
@@ -46,7 +49,7 @@ struct order_buffer {
 
 order_buffer buffers[BUFFER_NUM];
 
-void load_path_list(std::string dir_path,std::vector<std::string> &path_list)
+void load_path_list(const std::string& dir_path,std::vector<std::string> &path_list)
 {
     DIR *pDir;
     struct dirent* ptr;
@@ -72,29 +75,30 @@ int32_t direct_io_load(const std::string & path, int buffer_index) {
     std::string alpha_file_name = path + ALPHA;
     std::string prev_info_file_name = path + PREV_TRADE_INFO;
     int fd[3];
-    if((fd[0] = open(prev_info_file_name.c_str(), O_RDONLY | O_DIRECT))<0){
-        std::cerr<<"open file error! "<<order_file_name<<std::endl;
-    }
-    if((fd[1] = open(alpha_file_name.c_str(), O_RDONLY | O_DIRECT))<0){
-        std::cerr<<"open file error! "<<order_file_name<<std::endl;
-    }
-    if((fd[2] = open(order_file_name.c_str(), O_RDONLY | O_DIRECT))<0){
-        std::cerr<<"open file error! "<<order_file_name<<std::endl;
-    }
+//    if((fd[0] = open(prev_info_file_name.c_str(), O_RDONLY | O_DIRECT))<0){
+//        std::cerr<<"open file error! "<<order_file_name<<std::endl;
+//    }
+//    if((fd[1] = open(alpha_file_name.c_str(), O_RDONLY | O_DIRECT))<0){
+//        std::cerr<<"open file error! "<<order_file_name<<std::endl;
+//    }
+//    if((fd[2] = open(order_file_name.c_str(), O_RDONLY | O_DIRECT))<0){
+//        std::cerr<<"open file error! "<<order_file_name<<std::endl;
+//    }
 
-//    if((fd[0] = open(prev_info_file_name.c_str(), O_RDONLY))<0){
-//        std::cerr<<"open file error! "<<order_file_name<<std::endl;
-//    }
-//    if((fd[1] = open(alpha_file_name.c_str(), O_RDONLY))<0){
-//        std::cerr<<"open file error! "<<order_file_name<<std::endl;
-//    }
-//    if((fd[2] = open(order_file_name.c_str(), O_RDONLY))<0){
-//        std::cerr<<"open file error! "<<order_file_name<<std::endl;
-//    }
+    if((fd[0] = open(prev_info_file_name.c_str(), O_RDONLY))<0){
+        std::cerr<<"open file error! "<<order_file_name<<std::endl;
+    }
+    if((fd[1] = open(alpha_file_name.c_str(), O_RDONLY))<0){
+        std::cerr<<"open file error! "<<order_file_name<<std::endl;
+    }
+    if((fd[2] = open(order_file_name.c_str(), O_RDONLY))<0){
+        std::cerr<<"open file error! "<<order_file_name<<std::endl;
+    }
 
     while(buffers[buffer_index].finish_count.load()!=WORKER_THREAD_NUM);
     order_buffer * b = &buffers[buffer_index];
     b->flag = START;
+    b->path = path.substr(10);
 
     ssize_t bytesRead = 0;
     uint32_t offset = 0;

@@ -2,6 +2,8 @@
 // Created by Yongzao Dan on 2023/8/27.
 //
 
+
+#include "net/client.h"
 #include "trade_engine.h"
 
 void TradeEngine::initContract(const std::string &instrument, const double &prevClosePrice, const int &prevPosition) {
@@ -58,8 +60,13 @@ void TradeEngine::onComplete() {
 
     std::vector<twap_order> twapOrders = getTWAPOrders();
     std::vector<pnl_and_pos> pnlAndPos = getPNLAndPos();
+    std::string fileName = path + "_" + std::to_string(session.first) + "_" + std::to_string(session.second);
+//    sentResult(fileName, twapOrders, pnlAndPos);
+    for(auto &instrumentToId:instrumentToIdMap){
+        std::cout << instrumentToId.first << std::endl;
+    }
 
-    // TODO: Network transport
+    std::cout << "[Network] Finish send result: " << fileName << std::endl;
 }
 
 std::vector<twap_order> TradeEngine::getTWAPOrders() {

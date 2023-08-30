@@ -6,6 +6,7 @@
 #define UBIQUANTMATCHINGENGINE_BINARYHEAP_H
 
 #include <cstdio>
+#include "common.h"
 
 struct BinaryHeap {
 

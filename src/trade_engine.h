@@ -21,7 +21,7 @@ struct TradeEngine {
 
 public:
 
-    TradeEngine(std::pair<int, int> session) : session(std::move(session)) {
+    TradeEngine(std::pair<int, int> session, std::string path) : session(std::move(session)), path(path) {
         lastId = 0;
         timestampOffset = ENABLE_DEBUG_TRADE_LOG ? 0 : -1;
     }
@@ -51,14 +51,15 @@ public:
     void onComplete();
 
     // TODO: optimize for output
-    std::vector<twap_order> getTWAPOrders();
-    std::vector<pnl_and_pos> getPNLAndPos();
+    inline std::vector<twap_order> getTWAPOrders();
+    inline std::vector<pnl_and_pos> getPNLAndPos();
 
 private:
 
     int lastId;
     long long timestampOffset;
     std::pair<int, int> session;
+    std::string path;
 
     std::map<std::string, unsigned char> instrumentToIdMap;
     std::map<unsigned char, std::string> idToInstrumentMap;

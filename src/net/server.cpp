@@ -52,8 +52,6 @@ void handleClient(int clientSocket) {
         }
         twapOutputFile.write(buffer, tmpRecSize);
         totalRecSize += tmpRecSize;
-
-        std::cout << totalRecSize << std::endl;
     }
     twapOutputFile.close();
 

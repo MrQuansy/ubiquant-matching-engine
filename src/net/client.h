@@ -15,7 +15,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
-inline void sentResult(std::string &fileName, twap_order *twaps, int twapOrderSize, pnl_and_pos *pnls, int pnlSize) {
+inline void sentResult(std::string &fileName, std::vector<twap_order>& twaps, std::vector<pnl_and_pos>& pnls) {
     int clientSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (clientSocket == -1) {
         std::cerr << "Error creating socket" << std::endl;
@@ -42,24 +42,24 @@ inline void sentResult(std::string &fileName, twap_order *twaps, int twapOrderSi
     }
 
     // send twap
-    long totalBytes = twapOrderSize * sizeof(twap_order);
+    long totalBytes = twaps.size() * sizeof(twap_order);
     if (send(clientSocket, reinterpret_cast<char *>(&totalBytes), sizeof(totalBytes), 0) == -1) {
         std::cerr << "Failed to send twapOrderSize" << std::endl;
         close(clientSocket);
         return;
     }
-    if (send(clientSocket, reinterpret_cast<char *>(twaps), totalBytes, 0) == -1) {
+    if (send(clientSocket, twaps.data(), totalBytes, 0) == -1) {
         std::cerr << "Failed to send twaps" << std::endl;
         close(clientSocket);
         return;
     }
     // send pnl
-    totalBytes = pnlSize * sizeof(pnl_and_pos);
+    totalBytes = pnls.size() * sizeof(pnl_and_pos);
     if (send(clientSocket, reinterpret_cast<char *>(&totalBytes), sizeof(totalBytes), 0) == -1) {
         std::cerr << "Failed to send pnlSize" << std::endl;
         return;
     }
-    if (send(clientSocket, reinterpret_cast<char *>(pnls), totalBytes, 0) == -1) {
+    if (send(clientSocket, pnls.data(), totalBytes, 0) == -1) {
         std::cerr << "Failed to send pnls" << std::endl;
         return;
     }

@@ -7,11 +7,14 @@ void * matching_thread(void * args){
     int id = *(int*)args;
     TradeEngine * engine;
     int32_t buffer_index = 0;
+
+    time_t start_time;
     while(true) {
         while (buffers[buffer_index].finish_count.load() == WORKER_THREAD_NUM);
         if(buffers[buffer_index].flag == START){
+            start_time = now();
 //            std::cout<<"[Matching Thread: "<<id <<"] Start!"<<std::endl;
-            engine = new TradeEngine(SESSIONS[id]);
+            engine = new TradeEngine(SESSIONS[id], buffers[buffer_index].path);
             // Init prev_trade_info
             prev_trade_info* prev_buffer = (prev_trade_info*)buffers[buffer_index].prev_info_data;
             for(int i=0;i<buffers[buffer_index].prev_count;i++,prev_buffer++){
@@ -49,8 +52,8 @@ void * matching_thread(void * args){
         }
 
         if (buffers[buffer_index].flag==END){
-//            std::cout<<"[Matching Thread: "<<id <<"] Complete!"<<std::endl;
             engine->onComplete();
+          std::cout<<"[Matching Thread: "<<id <<"] Complete!. Time cost: "<<(now()-start_time)/MILLI_TO_NANO<<"ms"<<std::endl;
             delete engine;
         }
 
