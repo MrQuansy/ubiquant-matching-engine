@@ -6,36 +6,30 @@
 #include "net/client.h"
 #include "trade_engine.h"
 
-void TradeEngine::initContract(const std::string &instrument, const double &prevClosePrice, const int &prevPosition) {
-    int instrumentId = lastId++;
-    instrumentToIdMap[instrument] = instrumentId;
-    idToInstrumentMap[instrumentId] = instrument;
-
-    PrevTradeInfo prevTradeInfo = {
+void TradeEngine::initContract(const long instrument, const double &prevClosePrice, const int &prevPosition) {
+    compact_prev_trade_info prevTradeInfo = {
             .prevClosePrice = prevClosePrice,
-            .prevPosition = prevPosition,
-            .instrument = static_cast<unsigned char>(instrumentId)
+            .prevPosition = prevPosition
     };
-    contractEngineMap[instrumentId] =
+    contractEngineMap[instrument] =
             new ContractEngine(session.first, session.second, prevTradeInfo, instrument);
 }
 
-void TradeEngine::insertAlpha(const std::string &instrument, const long long &timestamp, const int &targetVolume) {
+void TradeEngine::insertAlpha(const long instrument, const long long &timestamp, const int &targetVolume) {
 
     if (timestampOffset == -1 && !ENABLE_DEBUG_TRADE_LOG) {
         timestampOffset = timestamp;
     }
 
-    Alpha alpha = {
+    compact_alpha alpha = {
             .timestamp = static_cast<int>(timestamp - timestampOffset),
-            .targetVolume = targetVolume,
-            .instrument = instrumentToIdMap[instrument]
+            .targetVolume = targetVolume
     };
-    contractEngineMap[alpha.instrument]->insertAlpha(alpha);
+    contractEngineMap[instrument]->insertAlpha(alpha);
 }
 
 void TradeEngine::insertOrderLog(
-        const std::string &instrument,
+        const long instrument,
         const long long &timestamp,
         const int &type,
         const int &direction,
@@ -47,10 +41,9 @@ void TradeEngine::insertOrderLog(
             .timestamp = static_cast<int>(timestamp - timestampOffset),
             .volume = volume,
             .price = priceOff,
-            .instrument = instrumentToIdMap[instrument],
             .directionAndType = (unsigned char) ((d << DIRECTION_OFFSET) | type)
     };
-    contractEngineMap[orderLog.instrument]->insertOrderLog(orderLog);
+    contractEngineMap[instrument]->insertOrderLog(orderLog);
 }
 
 void TradeEngine::onComplete() {
@@ -62,9 +55,6 @@ void TradeEngine::onComplete() {
     std::vector<pnl_and_pos> pnlAndPos = getPNLAndPos();
     std::string fileName = path + "_" + std::to_string(session.first) + "_" + std::to_string(session.second);
 //    sentResult(fileName, twapOrders, pnlAndPos);
-    for(auto &instrumentToId:instrumentToIdMap){
-        std::cout << instrumentToId.first << std::endl;
-    }
 
     std::cout << "[Network] Finish send result: " << fileName << std::endl;
 }
@@ -72,6 +62,7 @@ void TradeEngine::onComplete() {
 std::vector<twap_order> TradeEngine::getTWAPOrders() {
     std::vector<twap_order> twapOrders;
     for (auto &contractEngine : contractEngineMap) {
+        long instrument_id = contractEngine.first;
         int twapSize = contractEngine.second->getTwapSize();
         compact_order_log* contractTwapOrders = contractEngine.second->getTwapOrders();
         for (int i = 0; i < twapSize; i++) {
@@ -84,7 +75,7 @@ std::vector<twap_order> TradeEngine::getTWAPOrders() {
                     .volume = orderLog.volume,
                     .price = orderLog.price,
             };
-            std::strcpy(twapOrder.instrumentId, idToInstrumentMap[orderLog.instrument].c_str());
+            twapOrder.instrumentId = instrument_id;
             twapOrders.push_back(twapOrder);
         }
     }
@@ -95,11 +86,12 @@ std::vector<twap_order> TradeEngine::getTWAPOrders() {
 std::vector<pnl_and_pos> TradeEngine::getPNLAndPos() {
     std::vector<pnl_and_pos> pnlAndPos;
     for (auto &contractEngine : contractEngineMap) {
+        long instrument_id = contractEngine.first;
         pnl_and_pos pnlAndPosItem = {
                 .position = contractEngine.second->getPosition(),
                 .pnl = contractEngine.second->getPNL()
         };
-        std::strcpy(pnlAndPosItem.instrumentId, idToInstrumentMap[contractEngine.first].c_str());
+        pnlAndPosItem.instrumentId = instrument_id;
         pnlAndPos.push_back(pnlAndPosItem);
     }
     std::sort(pnlAndPos.begin(), pnlAndPos.end());

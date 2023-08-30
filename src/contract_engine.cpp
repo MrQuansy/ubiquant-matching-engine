@@ -4,7 +4,7 @@
 
 #include "contract_engine.h"
 
-void ContractEngine::insertAlpha(Alpha alpha) {
+void ContractEngine::insertAlpha(compact_alpha alpha) {
     int diff = alpha.targetVolume - targetVolume;
     if (!diff) {
         // Skip if diff == 0
@@ -20,7 +20,6 @@ void ContractEngine::insertAlpha(Alpha alpha) {
                 .timestamp = alpha.timestamp + i * sessionLength * 1000,
                 // The TWAP formula
                 .volume = (diff * (i + 1) / sessionNum) - (diff * i / sessionNum),
-                .instrument = alpha.instrument,
                 .directionAndType = static_cast<unsigned char>(direction | MyContract)
         };
     }

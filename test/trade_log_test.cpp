@@ -27,21 +27,21 @@ TEST_F(TradeLogTest, trade_log_test) {
     for (auto &DATE : DATES) {
         for (auto &SESSION : SESSIONS) {
             // Init engine
-            TradeEngine tradeEngine(SESSION);
+            TradeEngine tradeEngine(SESSION,DATE);
 
-            std::vector<std::string> instruments;
+            std::vector<long> instruments;
 
             // Read and init prev_trade_info
             prev_trade_info prevTradeInfo{};
             std::ifstream prevTradeInfoFile(DATA_PREFIX + DATE + PREV_TRADE_INFO, std::ios::binary);
             while (prevTradeInfoFile.read(reinterpret_cast<char*>(&prevTradeInfo), sizeof(prev_trade_info))) {
-                std::string instrument(prevTradeInfo.instrument_id);
+                prevTradeInfo.instrument_id;
                 tradeEngine.initContract(
-                        instrument,
+                        prevTradeInfo.instrument_id,
                         prevTradeInfo.prev_close_price,
                         prevTradeInfo.prev_position
                 );
-                instruments.push_back(instrument);
+                instruments.push_back(prevTradeInfo.instrument_id);
             }
             prevTradeInfoFile.close();
             std::cout << DATE << "_" + std::to_string(SESSION.first) + "_" + std::to_string(SESSION.second)
@@ -52,7 +52,7 @@ TEST_F(TradeLogTest, trade_log_test) {
             std::ifstream alphaFile(DATA_PREFIX + DATE + ALPHA, std::ios::binary);
             while (alphaFile.read(reinterpret_cast<char*>(&a), sizeof(alpha))) {
                 tradeEngine.insertAlpha(
-                        std::string(a.instrument_id),
+                        a.instrument_id,
                         a.timestamp,
                         a.target_volume
                 );
@@ -66,7 +66,7 @@ TEST_F(TradeLogTest, trade_log_test) {
             std::ifstream orderLogFile(DATA_PREFIX + DATE + ORDER_LOG, std::ios::binary);
             while (orderLogFile.read(reinterpret_cast<char*>(&orderLog), sizeof(order_log))) {
                 tradeEngine.insertOrderLog(
-                        std::string(orderLog.instrument_id),
+                        orderLog.instrument_id,
                         orderLog.timestamp,
                         orderLog.type,
                         orderLog.direction,
@@ -85,13 +85,13 @@ TEST_F(TradeLogTest, trade_log_test) {
 
             for (auto &instrument : instruments) {
                 compareLogFiles(
-                        DEBUG_PREFIX + instrument,
+                        DEBUG_PREFIX + (char*)&instrument,
                         STD_LOG_PREFIX + DATE + "/" +
                         "num" + std::to_string(SESSION.first) + "_" +
                         "length" + std::to_string(SESSION.second) + "_" +
-                        instrument);
+                                (char*)&instrument);
                 std::cout << DATE << "_" + std::to_string(SESSION.first) + "_" + std::to_string(SESSION.second)
-                          << "_" + instrument + " log compare successfully" << std::endl;
+                          << "_" +  std::string((char*)&instrument) + " log compare successfully" << std::endl;
             }
         }
     }

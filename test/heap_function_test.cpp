@@ -24,7 +24,6 @@ TEST_F(HeapFunctionTest, heap_function_test) {
                 std::rand() % 86400,
                 std::rand(),
                 (double) (std::rand() % 100000) / 100.0,
-                static_cast<unsigned char>(std::rand() % 256),
                 static_cast<unsigned char>(((std::rand() % 2) << 3) | (std::rand() % 7))
         };
         maxBinaryHeap.insert(orderLog);
@@ -56,7 +55,6 @@ TEST_F(HeapFunctionTest, heap_function_test) {
                 std::rand() % 86400,
                 std::rand(),
                 (double) (std::rand() % 100000) / 100.0,
-                static_cast<unsigned char>(std::rand() % 256),
                 static_cast<unsigned char>(((std::rand() % 2) << 3) | (std::rand() % 7))
         };
         minBinaryHeap.insert(orderLog);

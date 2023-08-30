@@ -106,7 +106,6 @@ struct compact_order_log {
     int timestamp;
     int volume;
     double price;
-    unsigned char instrument;
     unsigned char directionAndType;
 
     friend std::ostream& operator<<(std::ostream& os, const compact_order_log& o) {
@@ -154,12 +153,11 @@ struct MaxBinaryHeapCmp : Compare {
     }
 };
 
-struct PrevTradeInfo {
+struct compact_prev_trade_info {
     double prevClosePrice;
     int prevPosition;
-    unsigned char instrument;
 
-    friend std::ostream& operator<<(std::ostream& os, const PrevTradeInfo& o) {
+    friend std::ostream& operator<<(std::ostream& os, const compact_prev_trade_info& o) {
         os << "prev trade info: ";
         os << "prev_close_price=" << o.prevClosePrice << ", ";
         os << "prev_position=" << o.prevPosition;
@@ -167,21 +165,20 @@ struct PrevTradeInfo {
     }
 };
 
-struct Alpha {
+struct compact_alpha {
     int timestamp;
     int targetVolume;
-    unsigned char instrument;
 };
 
 // Input Only
 struct prev_trade_info {
-    char instrument_id[8];
+    long instrument_id;
     double prev_close_price;
     int prev_position;
 } __attribute__((packed));
 
 struct order_log {
-    char instrument_id[8];
+    long instrument_id;
     long timestamp;
     int type;
     int direction;
@@ -190,14 +187,14 @@ struct order_log {
 } __attribute__((packed));
 
 struct alpha {
-    char instrument_id[8];
+    long instrument_id;
     long timestamp;
     int target_volume;
 } __attribute__((packed));
 
 // Output Only
 struct twap_order {
-    char instrumentId[8];
+    long instrumentId;
     long timestamp;
     int direction;
     int volume;
@@ -207,16 +204,16 @@ struct twap_order {
         if (timestamp != o.timestamp) {
             return timestamp < o.timestamp;
         }
-        return std::strcmp(instrumentId, o.instrumentId) < 0;
+        return instrumentId<o.instrumentId;
     }
 
     bool operator == (const twap_order &o) const {
-        return std::strcmp(instrumentId, o.instrumentId) == 0 && timestamp == o.timestamp &&
+        return instrumentId == o.instrumentId == 0 && timestamp == o.timestamp &&
                direction == o.direction && volume == o.volume && _eq(price, o.price);
     }
 
     friend std::ostream& operator<<(std::ostream& os, const twap_order& o) {
-        os << "twap_order: {.instrumentId: " << o.instrumentId;
+        os << "twap_order: {.instrumentId: " << (char *)&o.instrumentId;
         os << " .timestamp: " << o.timestamp;
         os << " .direction: " << o.direction;
         os << " .volume: " << o.volume;
@@ -227,20 +224,20 @@ struct twap_order {
 } __attribute__((packed));
 
 struct pnl_and_pos {
-    char instrumentId[8];
+    long instrumentId;
     int position;
     double pnl;
 
     bool operator < (const pnl_and_pos &o) const {
-        return std::strcmp(instrumentId, o.instrumentId) < 0;
+        return instrumentId<o.instrumentId;
     }
 
     bool operator == (const pnl_and_pos &o) const {
-        return std::strcmp(instrumentId, o.instrumentId) == 0 && position == o.position && _eq(pnl, o.pnl);
+        return instrumentId == o.instrumentId && position == o.position && _eq(pnl, o.pnl);
     }
 
     friend std::ostream& operator<<(std::ostream& os, const pnl_and_pos& o) {
-        os << "pnl_and_pos: {.instrumentId: " << o.instrumentId;
+        os << "pnl_and_pos: {.instrumentId: " << (char*)&o.instrumentId;
         os << " .position: " << o.position;
         os << " .pnl: " << o.pnl << "}";
         return os;

@@ -19,7 +19,7 @@ struct ContractEngine {
 
 public:
 
-    ContractEngine(int sessionNum, int sessionLength, PrevTradeInfo prevTradeInfo, const std::string &instrument) :
+    ContractEngine(int sessionNum, int sessionLength, compact_prev_trade_info prevTradeInfo, long instrument) :
         sessionNum(sessionNum), sessionLength(sessionLength), prevTradeInfo(prevTradeInfo) {
 
         income = 0;
@@ -38,7 +38,7 @@ public:
 
         if (ENABLE_DEBUG_TRADE_LOG) {
             tradeCount = 0;
-            logFile = new std::ofstream(DEBUG_PREFIX + instrument, std::ios::out);
+            logFile = new std::ofstream(DEBUG_PREFIX + (char*)&instrument, std::ios::out);
             // (*logFile) << prevTradeInfo << std::endl;
         }
     }
@@ -54,7 +54,7 @@ public:
         }
     }
 
-    void insertAlpha(Alpha alpha);
+    void insertAlpha(compact_alpha alpha);
     void insertOrderLog(compact_order_log orderLog);
     void onComplete();
 
@@ -70,7 +70,7 @@ private:
     double upLimit, downLimit;
     int volume, targetVolume;
     int sessionNum, sessionLength;
-    PrevTradeInfo prevTradeInfo;
+    compact_prev_trade_info prevTradeInfo;
 
     BinaryHeap* saleHeap;
     BinaryHeap* buyHeap;

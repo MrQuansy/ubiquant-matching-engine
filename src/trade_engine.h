@@ -32,15 +32,15 @@ public:
         }
     }
 
-    // Init a contract by its PrevTradeInfo
-    void initContract(const std::string &instrument, const double &prevClosePrice, const int &prevPosition);
+    // Init a contract by its compact_prev_trade_info
+    void initContract(const long instrument, const double &prevClosePrice, const int &prevPosition);
 
-    // Insert Alpha by time order
-    void insertAlpha(const std::string &instrument, const long long &timestamp, const int &targetVolume);
+    // Insert compact_alpha by time order
+    void insertAlpha(const long instrument, const long long &timestamp, const int &targetVolume);
 
     // Insert compact_order_log by time order
     void insertOrderLog(
-            const std::string &instrument,
+            const long instrument,
             const long long &timestamp,
             const int &type,
             const int &direction,
@@ -61,9 +61,7 @@ private:
     std::pair<int, int> session;
     std::string path;
 
-    std::map<std::string, unsigned char> instrumentToIdMap;
-    std::map<unsigned char, std::string> idToInstrumentMap;
-    std::map<unsigned char, ContractEngine*> contractEngineMap;
+    std::map<long, ContractEngine*> contractEngineMap;
 };
 
 #endif //UBIQUANTMATCHINGENGINE_TRADE_ENGINE_H

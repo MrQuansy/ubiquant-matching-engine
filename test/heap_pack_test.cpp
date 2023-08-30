@@ -27,7 +27,6 @@ TEST_F(HeapPackTest, heap_pack_test) {
                     std::rand(),
                     std::rand(),
                     (double) (std::rand() % 100000) / 100.0,
-                    static_cast<unsigned char>(std::rand() % 256),
                     static_cast<unsigned char>(std::rand() % 256)
             };
             maxBinaryHeap.insert(orderLog);

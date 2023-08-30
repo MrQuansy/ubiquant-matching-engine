@@ -15,21 +15,21 @@
 class SingleContractTest : public ::testing::Test {};
 
 const static std::string DEBUG_DATE = "20150101";
-const static std::string DEBUG_INSTRUMENT = "000.UBE";
+const static char* DEBUG_INSTRUMENT = "000.UBE";
 const static std::pair<int, int> DEBUG_SESSION = SESSIONS[0];
 
 /** Test trade log for a single contract and a single Session output */
 TEST_F(SingleContractTest, single_contract_test) {
     // Init engines
-    TradeEngine tradeEngine(DEBUG_SESSION);
+    TradeEngine tradeEngine(DEBUG_SESSION,DEBUG_DATE);
 
     // Read and init prev_trade_info
     prev_trade_info prevTradeInfo{};
     std::ifstream prevTradeInfoFile(DATA_PREFIX + DEBUG_DATE + PREV_TRADE_INFO, std::ios::binary);
     while (prevTradeInfoFile.read(reinterpret_cast<char*>(&prevTradeInfo), sizeof(prev_trade_info))) {
-        if (std::strcmp(prevTradeInfo.instrument_id, DEBUG_INSTRUMENT.c_str()) == 0) {
+        if (prevTradeInfo.instrument_id == *(long*)DEBUG_INSTRUMENT) {
             tradeEngine.initContract(
-                    std::string(prevTradeInfo.instrument_id),
+                    prevTradeInfo.instrument_id,
                     prevTradeInfo.prev_close_price,
                     prevTradeInfo.prev_position
             );
@@ -42,9 +42,9 @@ TEST_F(SingleContractTest, single_contract_test) {
     alpha a{};
     std::ifstream alphaFile(DATA_PREFIX + DEBUG_DATE + ALPHA, std::ios::binary);
     while (alphaFile.read(reinterpret_cast<char*>(&a), sizeof(alpha))) {
-        if (std::strcmp(a.instrument_id, DEBUG_INSTRUMENT.c_str()) == 0) {
+        if (a.instrument_id == *(long*)DEBUG_INSTRUMENT) {
             tradeEngine.insertAlpha(
-                    std::string(a.instrument_id),
+                    a.instrument_id,
                     a.timestamp,
                     a.target_volume
             );
@@ -57,9 +57,9 @@ TEST_F(SingleContractTest, single_contract_test) {
     order_log orderLog{};
     std::ifstream orderLogFile(DATA_PREFIX + DEBUG_DATE + ORDER_LOG, std::ios::binary);
     while (orderLogFile.read(reinterpret_cast<char*>(&orderLog), sizeof(order_log))) {
-        if (std::strcmp(orderLog.instrument_id, DEBUG_INSTRUMENT.c_str()) == 0) {
+        if (orderLog.instrument_id == *(long*)DEBUG_INSTRUMENT) {
             tradeEngine.insertOrderLog(
-                    std::string(orderLog.instrument_id),
+                    orderLog.instrument_id,
                     orderLog.timestamp,
                     orderLog.type,
                     orderLog.direction,

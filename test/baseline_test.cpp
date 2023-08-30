@@ -113,18 +113,18 @@ void tradeToday(
 
     // Init engines
     TradeEngine tradeEngines[] = {
-            TradeEngine(SESSIONS[0]),
-            TradeEngine(SESSIONS[1]),
-            TradeEngine(SESSIONS[2]),
-            TradeEngine(SESSIONS[3]),
-            TradeEngine(SESSIONS[4])
+            TradeEngine(SESSIONS[0],date),
+            TradeEngine(SESSIONS[1],date),
+            TradeEngine(SESSIONS[2],date),
+            TradeEngine(SESSIONS[3],date),
+            TradeEngine(SESSIONS[4],date)
     };
 
     // Init prev_trade_info
     for (auto &prevTradeInfo : prev_trade_infos) {
         for (auto &tradeEngine : tradeEngines) {
             tradeEngine.initContract(
-                    std::string(prevTradeInfo.instrument_id),
+                    prevTradeInfo.instrument_id,
                     prevTradeInfo.prev_close_price,
                     prevTradeInfo.prev_position
             );
@@ -136,7 +136,7 @@ void tradeToday(
     for (auto &alpha : alphas) {
         for (auto &tradeEngine : tradeEngines) {
             tradeEngine.insertAlpha(
-                    std::string(alpha.instrument_id),
+                    alpha.instrument_id,
                     alpha.timestamp,
                     alpha.target_volume
             );
@@ -148,7 +148,7 @@ void tradeToday(
     for (auto &orderLog : orderLogs) {
         for (auto &tradeEngine : tradeEngines) {
             tradeEngine.insertOrderLog(
-                    std::string(orderLog.instrument_id),
+                    orderLog.instrument_id,
                     orderLog.timestamp,
                     orderLog.type,
                     orderLog.direction,
