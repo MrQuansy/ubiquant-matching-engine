@@ -303,6 +303,10 @@ void ContractEngine::processTrade() {
     }
 }
 
+unsigned long ContractEngine::getInstrument() const {
+    return instrument;
+}
+
 int ContractEngine::getTwapSize() const {
     return twapSize;
 }
