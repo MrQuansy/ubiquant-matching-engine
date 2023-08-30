@@ -8,13 +8,20 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 # O3 optimization
 if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -pthread")
 endif()
 
 # UbiquantMatchingEngine Configuration
 # include_directories(.)
-add_executable(UbiquantMatchingEngine
-        src/binary_heap.h src/common.h src/trade_engine.h src/contract_engine.h src/contract_engine.cpp src/trade_engine.cpp)
+add_executable(NetServer
+        src/net/server.cpp)
+find_package(Threads REQUIRED)
+target_link_libraries(NetServer Threads::Threads)
+
+#add_executable(UbiquantMatchingEngine
+#        src/binary_heap.h src/common.h src/trade_engine.h src/contract_engine.h src/contract_engine.cpp src/trade_engine.cpp)
+
+add_executable(entrance src/binary_heap.h src/common.h src/trade_engine.h src/contract_engine.h src/contract_engine.cpp src/trade_engine.cpp src/entrance.cpp)
 
 # Google Test Configuration
 set(GOOGLETEST_VERSION 1.14.0)
@@ -24,3 +31,7 @@ add_executable(
         test_main test/test_main.cpp test/heap_function_test.cpp test/heap_efficiency_test.cpp test/heap_pack_test.cpp test/baseline_test.cpp
         src/binary_heap.h src/common.h src/trade_engine.h src/contract_engine.h src/contract_engine.cpp src/trade_engine.cpp test/test_main.cpp test/trade_log_test.cpp test/binary_file_compare.h test/binary_file_compare.cpp test/single_contract_test.cpp)
 target_link_libraries(test_main gtest)
+
+
+add_executable(SenderTest
+        test/net_sender_test.cpp src/net/client.h)
