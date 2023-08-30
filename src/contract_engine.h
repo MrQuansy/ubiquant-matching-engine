@@ -20,7 +20,7 @@ struct ContractEngine {
 public:
 
     ContractEngine(int sessionNum, int sessionLength, compact_prev_trade_info prevTradeInfo, unsigned long instrument) :
-        sessionNum(sessionNum), sessionLength(sessionLength), prevTradeInfo(prevTradeInfo) {
+        sessionNum(sessionNum), sessionLength(sessionLength), prevTradeInfo(prevTradeInfo), instrument(instrument) {
 
         income = 0;
         lastPrice = prevTradeInfo.prevClosePrice;
@@ -58,6 +58,8 @@ public:
     void insertOrderLog(compact_order_log orderLog);
     void onComplete();
 
+    unsigned long getInstrument() const;
+
     int getTwapSize() const;
     compact_order_log* getTwapOrders() const;
 
@@ -70,6 +72,7 @@ private:
     double upLimit, downLimit;
     int volume, targetVolume;
     int sessionNum, sessionLength;
+    unsigned long instrument;
     compact_prev_trade_info prevTradeInfo;
 
     BinaryHeap* saleHeap;
