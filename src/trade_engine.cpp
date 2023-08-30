@@ -15,7 +15,7 @@ void TradeEngine::initContract(const std::string &instrument, const double &prev
             .instrument = static_cast<unsigned char>(instrumentId)
     };
     contractEngineMap[instrumentId] =
-            new ContractEngine(session.first, session.second, prevTradeInfo);
+            new ContractEngine(session.first, session.second, prevTradeInfo, instrument);
 }
 
 void TradeEngine::insertAlpha(const std::string &instrument, const long long &timestamp, const int &targetVolume) {

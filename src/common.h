@@ -85,10 +85,6 @@ const static std::string PNL_AND_POSITION = "/pnl_and_position";
 // Debug Fields
 const static bool ENABLE_DEBUG_TRADE_LOG = false;
 const static std::string DEBUG_PREFIX = "/mnt/logs/";
-const static std::string DEBUG_DATE = "20150101";
-const static std::string DEBUG_INSTRUMENT = "000.UBE";
-const static std::pair<int, int> DEBUG_SESSION = SESSIONS[0];
-
 const static std::string STD_LOG_PREFIX = "/mnt/log_adjust/";
 
 enum ContractType : unsigned char {
