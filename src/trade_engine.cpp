@@ -41,7 +41,7 @@ void TradeEngine::insertOrderLog(
         const double &priceOff) {
 
     unsigned char d = direction == -1 ? Sale : Buy;
-    OrderLog orderLog = {
+    compact_order_log orderLog = {
             .timestamp = static_cast<int>(timestamp - timestampOffset),
             .volume = volume,
             .price = priceOff,
@@ -66,9 +66,9 @@ std::vector<twap_order> TradeEngine::getTWAPOrders() {
     std::vector<twap_order> twapOrders;
     for (auto &contractEngine : contractEngineMap) {
         int twapSize = contractEngine.second->getTwapSize();
-        OrderLog* contractTwapOrders = contractEngine.second->getTwapOrders();
+        compact_order_log* contractTwapOrders = contractEngine.second->getTwapOrders();
         for (int i = 0; i < twapSize; i++) {
-            OrderLog orderLog = contractTwapOrders[i];
+            compact_order_log orderLog = contractTwapOrders[i];
             int direction = orderLog.directionAndType >> DIRECTION_OFFSET;
             direction = direction == Sale ? -1 : 1;
             twap_order twapOrder = {

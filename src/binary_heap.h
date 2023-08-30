@@ -9,13 +9,13 @@
 
 struct BinaryHeap {
 
-    OrderLog* heapArray;
+    compact_order_log* heapArray;
     int capacity;
     int _size;
     Compare* cmp;
 
     BinaryHeap(int capacity, Compare* cmp) : capacity(capacity), _size(0), cmp(cmp) {
-        heapArray = new OrderLog[capacity + 5];
+        heapArray = new compact_order_log[capacity + 5];
     }
 
     ~BinaryHeap() {
@@ -30,7 +30,7 @@ struct BinaryHeap {
         return _size == 0;
     }
 
-    void insert(const OrderLog& value) {
+    void insert(const compact_order_log& value) {
         int index = ++_size;
         for (int father = index >> 1;
             index > 1 && (*cmp)(value, heapArray[father]);
@@ -40,19 +40,19 @@ struct BinaryHeap {
         heapArray[index] = value;
     }
 
-    OrderLog top() const {
+    compact_order_log top() const {
         return heapArray[1];
     }
 
-    OrderLog* topPtr() const {
+    compact_order_log* topPtr() const {
         return &heapArray[1];
     }
 
-    OrderLog pop() {
-        OrderLog top = heapArray[1];
+    compact_order_log pop() {
+        compact_order_log top = heapArray[1];
 
         int index = 1;
-        OrderLog last = heapArray[_size--];
+        compact_order_log last = heapArray[_size--];
         for (int maxChild = 2; maxChild <= _size; index = maxChild, maxChild <<= 1) {
             if (maxChild < _size && (*cmp)(heapArray[maxChild + 1], heapArray[maxChild])) {
                 maxChild++;

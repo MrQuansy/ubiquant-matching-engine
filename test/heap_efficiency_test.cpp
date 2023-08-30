@@ -20,7 +20,7 @@ TEST_F(HeapEfficiencyTest, heap_efficiency_test) {
     auto start = std::chrono::high_resolution_clock::now();
     BinaryHeap maxBinaryHeap(N, new MaxBinaryHeapCmp());
     for (int i = 0; i < N; i++) {
-        OrderLog orderLog = {
+        compact_order_log orderLog = {
                 std::rand(),
                 std::rand(),
                 (double) (std::rand() % 100000) / 100.0,
@@ -37,11 +37,11 @@ TEST_F(HeapEfficiencyTest, heap_efficiency_test) {
     }
     auto bhPopTime = std::chrono::high_resolution_clock::now() - start;
 
-    std::priority_queue<OrderLog, std::vector<OrderLog>, MinBinaryHeapCmp> pq;
+    std::priority_queue<compact_order_log, std::vector<compact_order_log>, MinBinaryHeapCmp> pq;
     start = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < N; i++) {
         //pq.push(std::rand());
-        OrderLog orderLog = {
+        compact_order_log orderLog = {
                 std::rand(),
                 std::rand(),
                 (double) (std::rand() % 100000) / 100.0,
@@ -58,8 +58,8 @@ TEST_F(HeapEfficiencyTest, heap_efficiency_test) {
     }
     auto pqPopTime = std::chrono::high_resolution_clock::now() - start;
 
-    printf("BinaryHeap insert time for %d OrderLog: %lld ms\n", N, std::chrono::duration_cast<std::chrono::milliseconds>(bhInsertTime).count());
-    printf("priority_queue insert time for %d OrderLog: %lld ms\n", N, std::chrono::duration_cast<std::chrono::milliseconds>(pqInsertTime).count());
-    printf("BinaryHeap pop time for %d OrderLog: %lld ms\n", N, std::chrono::duration_cast<std::chrono::milliseconds>(bhPopTime).count());
-    printf("priority_queue pop time for %d OrderLog: %lld ms\n", N, std::chrono::duration_cast<std::chrono::milliseconds>(pqPopTime).count());
+    printf("BinaryHeap insert time for %d compact_order_log: %lld ms\n", N, std::chrono::duration_cast<std::chrono::milliseconds>(bhInsertTime).count());
+    printf("priority_queue insert time for %d compact_order_log: %lld ms\n", N, std::chrono::duration_cast<std::chrono::milliseconds>(pqInsertTime).count());
+    printf("BinaryHeap pop time for %d compact_order_log: %lld ms\n", N, std::chrono::duration_cast<std::chrono::milliseconds>(bhPopTime).count());
+    printf("priority_queue pop time for %d compact_order_log: %lld ms\n", N, std::chrono::duration_cast<std::chrono::milliseconds>(pqPopTime).count());
 }

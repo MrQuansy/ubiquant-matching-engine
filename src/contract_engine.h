@@ -34,7 +34,7 @@ public:
         buyHeap = new BinaryHeap(HEAP_SIZE, new MaxBinaryHeapCmp());
 
         twapSize = twapHead = 0;
-        twapOrders = new OrderLog[MAX_TWAP_LENGTH];
+        twapOrders = new compact_order_log[MAX_TWAP_LENGTH];
 
         if (ENABLE_DEBUG_TRADE_LOG) {
             tradeCount = 0;
@@ -55,11 +55,11 @@ public:
     }
 
     void insertAlpha(Alpha alpha);
-    void insertOrderLog(OrderLog orderLog);
+    void insertOrderLog(compact_order_log orderLog);
     void onComplete();
 
     int getTwapSize() const;
-    OrderLog* getTwapOrders() const;
+    compact_order_log* getTwapOrders() const;
 
     int getPosition() const;
     double getPNL() const;
@@ -76,7 +76,7 @@ private:
     BinaryHeap* buyHeap;
 
     int twapSize, twapHead;
-    OrderLog* twapOrders;
+    compact_order_log* twapOrders;
 
     int tradeCount;
     std::ofstream* logFile;
@@ -89,7 +89,7 @@ private:
 
     // Trade the specified orders and calculate PNL if necessary
     // return: trade volume
-    int tradeOrder(const OrderLog &saleOrder, const OrderLog &buyOrder);
+    int tradeOrder(const compact_order_log &saleOrder, const compact_order_log &buyOrder);
 
 };
 

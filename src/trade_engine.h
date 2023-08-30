@@ -38,7 +38,7 @@ public:
     // Insert Alpha by time order
     void insertAlpha(const std::string &instrument, const long long &timestamp, const int &targetVolume);
 
-    // Insert OrderLog by time order
+    // Insert compact_order_log by time order
     void insertOrderLog(
             const std::string &instrument,
             const long long &timestamp,

@@ -26,7 +26,7 @@ void ContractEngine::insertAlpha(Alpha alpha) {
     }
 }
 
-void ContractEngine::insertOrderLog(OrderLog orderLog) {
+void ContractEngine::insertOrderLog(compact_order_log orderLog) {
     // Ensure all TWAP orders with timestamp < orderLog.timestamp are processed
     processTwapOrdersIfNecessary(orderLog.timestamp);
 
@@ -121,7 +121,7 @@ void ContractEngine::insertOrderLog(OrderLog orderLog) {
                 int levelNum = 0;
                 double lastPriceLevel = -1;
                 while (orderLog.volume > 0 && !heap->isEmpty()) {
-                    OrderLog topOrder = heap->top();
+                    compact_order_log topOrder = heap->top();
                     if (_neq(topOrder.price, lastPriceLevel)) {
                         // Five best limit
                         ++levelNum;
@@ -147,7 +147,7 @@ void ContractEngine::insertOrderLog(OrderLog orderLog) {
 
             case ImmediateDealNoLeft:
                 while (orderLog.volume > 0 && !heap->isEmpty()) {
-                    OrderLog topOrder = heap->top();
+                    compact_order_log topOrder = heap->top();
 
                     int tradeVolume = direction == Sale ?
                                       tradeOrder(orderLog, topOrder) :
@@ -164,9 +164,9 @@ void ContractEngine::insertOrderLog(OrderLog orderLog) {
 
             case AllOrNothing: {
                 int volumeSum = 0;
-                std::queue<OrderLog> pendingOrders;
+                std::queue<compact_order_log> pendingOrders;
                 while (volumeSum < orderLog.volume && !heap->isEmpty()) {
-                    OrderLog topOrder = heap->pop();
+                    compact_order_log topOrder = heap->pop();
                     volumeSum += topOrder.volume;
                     pendingOrders.push(topOrder);
                 }
@@ -174,7 +174,7 @@ void ContractEngine::insertOrderLog(OrderLog orderLog) {
                 if (volumeSum >= orderLog.volume) {
                     // Trade all pending orders
                     while (!pendingOrders.empty()) {
-                        OrderLog topOrder = pendingOrders.front();
+                        compact_order_log topOrder = pendingOrders.front();
                         pendingOrders.pop();
                         int tradeVolume = direction == Sale ?
                                           tradeOrder(orderLog, topOrder) :
@@ -228,7 +228,7 @@ double ContractEngine::getCurrentBasePrice(const unsigned char &direction) {
 
 void ContractEngine::processTwapOrdersIfNecessary(int currentTime) {
     while (twapHead < twapSize && twapOrders[twapHead].timestamp < currentTime) {
-        OrderLog *orderLog = &twapOrders[twapHead++];
+        compact_order_log *orderLog = &twapOrders[twapHead++];
         int direction = orderLog->directionAndType >> DIRECTION_OFFSET;
         orderLog->price = getCurrentBasePrice(direction);
         if (orderLog->volume) {
@@ -256,7 +256,7 @@ void ContractEngine::processTwapOrdersIfNecessary(int currentTime) {
 }
 
 // Update lastPrice, return tradeVolume and update income if necessary
-int ContractEngine::tradeOrder(const OrderLog &saleOrder, const OrderLog &buyOrder) {
+int ContractEngine::tradeOrder(const compact_order_log &saleOrder, const compact_order_log &buyOrder) {
     double tradePrice;
     if (_eq(saleOrder.price, buyOrder.price)) {
         tradePrice = saleOrder.price;
@@ -286,8 +286,8 @@ int ContractEngine::tradeOrder(const OrderLog &saleOrder, const OrderLog &buyOrd
 
 void ContractEngine::processTrade() {
     while (!saleHeap->isEmpty() && !buyHeap->isEmpty()) {
-        OrderLog* saleOrder = saleHeap->topPtr();
-        OrderLog* buyOrder = buyHeap->topPtr();
+        compact_order_log* saleOrder = saleHeap->topPtr();
+        compact_order_log* buyOrder = buyHeap->topPtr();
         if (_gt(saleOrder->price, buyOrder->price)) {
             break;
         }
@@ -308,7 +308,7 @@ int ContractEngine::getTwapSize() const {
     return twapSize;
 }
 
-OrderLog* ContractEngine::getTwapOrders() const {
+compact_order_log* ContractEngine::getTwapOrders() const {
     return twapOrders;
 }
 

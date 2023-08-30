@@ -23,7 +23,7 @@ TEST_F(HeapPackTest, heap_pack_test) {
         auto start = std::chrono::high_resolution_clock::now();
         BinaryHeap maxBinaryHeap(N, new MaxBinaryHeapCmp());
         for (int i = 0; i < N; i++) {
-            OrderLog orderLog = {
+            compact_order_log orderLog = {
                     std::rand(),
                     std::rand(),
                     (double) (std::rand() % 100000) / 100.0,
@@ -42,11 +42,11 @@ TEST_F(HeapPackTest, heap_pack_test) {
         auto bhPopTime = std::chrono::high_resolution_clock::now() - start;
         totPop += std::chrono::duration_cast<std::chrono::milliseconds>(bhPopTime).count();
 
-        printf("Round %d: BinaryHeap insert time for %d OrderLog: %lld ms\n", round, N, std::chrono::duration_cast<std::chrono::milliseconds>(bhInsertTime).count());
-        printf("Round %d: BinaryHeap pop time for %d OrderLog: %lld ms\n", round, N, std::chrono::duration_cast<std::chrono::milliseconds>(bhPopTime).count());
+        printf("Round %d: BinaryHeap insert time for %d compact_order_log: %lld ms\n", round, N, std::chrono::duration_cast<std::chrono::milliseconds>(bhInsertTime).count());
+        printf("Round %d: BinaryHeap pop time for %d compact_order_log: %lld ms\n", round, N, std::chrono::duration_cast<std::chrono::milliseconds>(bhPopTime).count());
     }
 
     printf("==============================================================================\n");
-    printf("BinaryHeap avg insert time for %d OrderLog: %lld ms\n", N, totInsert / M);
-    printf("BinaryHeap avg pop time for %d OrderLog: %lld ms\n", N, totPop / M);
+    printf("BinaryHeap avg insert time for %d compact_order_log: %lld ms\n", N, totInsert / M);
+    printf("BinaryHeap avg pop time for %d compact_order_log: %lld ms\n", N, totPop / M);
 }

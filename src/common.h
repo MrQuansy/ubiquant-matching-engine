@@ -102,14 +102,14 @@ enum Direction : unsigned char {
     Buy = (unsigned char) 1
 };
 
-struct OrderLog {
+struct compact_order_log {
     int timestamp;
     int volume;
     double price;
     unsigned char instrument;
     unsigned char directionAndType;
 
-    friend std::ostream& operator<<(std::ostream& os, const OrderLog& o) {
+    friend std::ostream& operator<<(std::ostream& os, const compact_order_log& o) {
         os << "history order: ";
         os << "timestamp=" << o.timestamp << ", ";
         os << "direction=" << ((int) (o.directionAndType >> DIRECTION_OFFSET) ? 1 : -1) << ", ";
@@ -121,12 +121,12 @@ struct OrderLog {
 } __attribute__((packed));
 
 struct Compare {
-    virtual bool operator () (const OrderLog &o1, const OrderLog &o2) const = 0;
+    virtual bool operator () (const compact_order_log &o1, const compact_order_log &o2) const = 0;
 };
 
 struct MinBinaryHeapCmp : Compare {
     // return true if o1.price < o2.price || (o1.price == o2.price && o1.timestamp < o2.timestamp)
-    bool operator () (const OrderLog &o1, const OrderLog &o2) const override {
+    bool operator () (const compact_order_log &o1, const compact_order_log &o2) const override {
         if (_neq(o1.price, o2.price)) {
             // 1. Trade minimal price
             return o1.price < o2.price;
@@ -141,7 +141,7 @@ struct MinBinaryHeapCmp : Compare {
 
 struct MaxBinaryHeapCmp : Compare {
     // return true if o1.price > o2.price || (o1.price == o2.price && o1.timestamp < o2.timestamp)
-    bool operator () (const OrderLog &o1, const OrderLog &o2) const override {
+    bool operator () (const compact_order_log &o1, const compact_order_log &o2) const override {
         if (_neq(o1.price, o2.price)) {
             // 1. Trade maximal price
             return o1.price > o2.price;

@@ -20,7 +20,7 @@ TEST_F(HeapFunctionTest, heap_function_test) {
 
     BinaryHeap maxBinaryHeap(N, new MaxBinaryHeapCmp());
     for (int i = 0; i < N; i++) {
-        OrderLog orderLog = {
+        compact_order_log orderLog = {
                 std::rand() % 86400,
                 std::rand(),
                 (double) (std::rand() % 100000) / 100.0,
@@ -33,7 +33,7 @@ TEST_F(HeapFunctionTest, heap_function_test) {
     double lastPrice = 1E9;
     int lastTime = 0, lastType = 0;
     while (!maxBinaryHeap.isEmpty()) {
-        OrderLog orderLog = maxBinaryHeap.pop();
+        compact_order_log orderLog = maxBinaryHeap.pop();
         if (_neq(lastPrice, orderLog.price)) {
             EXPECT_GT(lastPrice, orderLog.price);
         } else if (lastTime != orderLog.timestamp) {
@@ -52,7 +52,7 @@ TEST_F(HeapFunctionTest, heap_function_test) {
 
     BinaryHeap minBinaryHeap(N, new MinBinaryHeapCmp());
     for (int i = 0; i < N; i++) {
-        OrderLog orderLog = {
+        compact_order_log orderLog = {
                 std::rand() % 86400,
                 std::rand(),
                 (double) (std::rand() % 100000) / 100.0,
@@ -65,7 +65,7 @@ TEST_F(HeapFunctionTest, heap_function_test) {
     lastPrice = -1E9;
     lastTime = 0;
     while (!minBinaryHeap.isEmpty()) {
-        OrderLog orderLog = minBinaryHeap.pop();
+        compact_order_log orderLog = minBinaryHeap.pop();
         if (_neq(lastPrice, orderLog.price)) {
             EXPECT_LT(lastPrice, orderLog.price);
         } else if (lastTime != orderLog.timestamp) {
