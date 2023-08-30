@@ -6,7 +6,7 @@
 #include "net/client.h"
 #include "trade_engine.h"
 
-void TradeEngine::initContract(const long instrument, const double &prevClosePrice, const int &prevPosition) {
+void TradeEngine::initContract(const unsigned long &instrument, const double &prevClosePrice, const int &prevPosition) {
     compact_prev_trade_info prevTradeInfo = {
             .prevClosePrice = prevClosePrice,
             .prevPosition = prevPosition
@@ -15,7 +15,7 @@ void TradeEngine::initContract(const long instrument, const double &prevClosePri
             new ContractEngine(session.first, session.second, prevTradeInfo, instrument);
 }
 
-void TradeEngine::insertAlpha(const long instrument, const long long &timestamp, const int &targetVolume) {
+void TradeEngine::insertAlpha(const unsigned long &instrument, const long long &timestamp, const int &targetVolume) {
 
     if (timestampOffset == -1 && !ENABLE_DEBUG_TRADE_LOG) {
         timestampOffset = timestamp;
@@ -29,7 +29,7 @@ void TradeEngine::insertAlpha(const long instrument, const long long &timestamp,
 }
 
 void TradeEngine::insertOrderLog(
-        const long instrument,
+        const unsigned long &instrument,
         const long long &timestamp,
         const int &type,
         const int &direction,
@@ -59,10 +59,19 @@ void TradeEngine::onComplete() {
     std::cout << "[Network] Finish send result: " << fileName << std::endl;
 }
 
+inline unsigned long reverseInstrumentId(unsigned long instrumentId) {
+    unsigned long result = 0;
+    for (int i = 0; i < 8; i++) {
+        result = (result << 8) | (instrumentId & 0xff);
+        instrumentId >>= 8;
+    }
+    return result;
+}
+
 std::vector<twap_order> TradeEngine::getTWAPOrders() {
     std::vector<twap_order> twapOrders;
     for (auto &contractEngine : contractEngineMap) {
-        long instrument_id = contractEngine.first;
+        unsigned long instrumentId = reverseInstrumentId(contractEngine.first);
         int twapSize = contractEngine.second->getTwapSize();
         compact_order_log* contractTwapOrders = contractEngine.second->getTwapOrders();
         for (int i = 0; i < twapSize; i++) {
@@ -75,25 +84,31 @@ std::vector<twap_order> TradeEngine::getTWAPOrders() {
                     .volume = orderLog.volume,
                     .price = orderLog.price,
             };
-            twapOrder.instrumentId = instrument_id;
+            twapOrder.instrumentId = instrumentId;
             twapOrders.push_back(twapOrder);
         }
     }
     std::sort(twapOrders.begin(), twapOrders.end());
+    for (auto &twapOrder : twapOrders) {
+        twapOrder.instrumentId = reverseInstrumentId(twapOrder.instrumentId);
+    }
     return twapOrders;
 }
 
 std::vector<pnl_and_pos> TradeEngine::getPNLAndPos() {
     std::vector<pnl_and_pos> pnlAndPos;
     for (auto &contractEngine : contractEngineMap) {
-        long instrument_id = contractEngine.first;
+        unsigned long instrumentId = reverseInstrumentId(contractEngine.first);
         pnl_and_pos pnlAndPosItem = {
                 .position = contractEngine.second->getPosition(),
                 .pnl = contractEngine.second->getPNL()
         };
-        pnlAndPosItem.instrumentId = instrument_id;
+        pnlAndPosItem.instrumentId = instrumentId;
         pnlAndPos.push_back(pnlAndPosItem);
     }
     std::sort(pnlAndPos.begin(), pnlAndPos.end());
+    for (auto &pnlAndPo : pnlAndPos) {
+        pnlAndPo.instrumentId = reverseInstrumentId(pnlAndPo.instrumentId);
+    }
     return pnlAndPos;
 }

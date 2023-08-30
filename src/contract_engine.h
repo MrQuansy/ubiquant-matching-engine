@@ -19,7 +19,7 @@ struct ContractEngine {
 
 public:
 
-    ContractEngine(int sessionNum, int sessionLength, compact_prev_trade_info prevTradeInfo, long instrument) :
+    ContractEngine(int sessionNum, int sessionLength, compact_prev_trade_info prevTradeInfo, unsigned long instrument) :
         sessionNum(sessionNum), sessionLength(sessionLength), prevTradeInfo(prevTradeInfo) {
 
         income = 0;

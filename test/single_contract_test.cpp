@@ -42,7 +42,7 @@ TEST_F(SingleContractTest, single_contract_test) {
     alpha a{};
     std::ifstream alphaFile(DATA_PREFIX + DEBUG_DATE + ALPHA, std::ios::binary);
     while (alphaFile.read(reinterpret_cast<char*>(&a), sizeof(alpha))) {
-        if (a.instrument_id == *(long*)DEBUG_INSTRUMENT) {
+        if (a.instrument_id == *(unsigned long*)DEBUG_INSTRUMENT) {
             tradeEngine.insertAlpha(
                     a.instrument_id,
                     a.timestamp,
@@ -57,7 +57,7 @@ TEST_F(SingleContractTest, single_contract_test) {
     order_log orderLog{};
     std::ifstream orderLogFile(DATA_PREFIX + DEBUG_DATE + ORDER_LOG, std::ios::binary);
     while (orderLogFile.read(reinterpret_cast<char*>(&orderLog), sizeof(order_log))) {
-        if (orderLog.instrument_id == *(long*)DEBUG_INSTRUMENT) {
+        if (orderLog.instrument_id == *(unsigned long*)DEBUG_INSTRUMENT) {
             tradeEngine.insertOrderLog(
                     orderLog.instrument_id,
                     orderLog.timestamp,

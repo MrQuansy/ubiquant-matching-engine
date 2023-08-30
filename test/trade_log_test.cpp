@@ -29,7 +29,7 @@ TEST_F(TradeLogTest, trade_log_test) {
             // Init engine
             TradeEngine tradeEngine(SESSION,DATE);
 
-            std::vector<long> instruments;
+            std::vector<unsigned long> instruments;
 
             // Read and init prev_trade_info
             prev_trade_info prevTradeInfo{};

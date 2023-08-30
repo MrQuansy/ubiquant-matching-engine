@@ -172,13 +172,13 @@ struct compact_alpha {
 
 // Input Only
 struct prev_trade_info {
-    long instrument_id;
+    unsigned long instrument_id;
     double prev_close_price;
     int prev_position;
 } __attribute__((packed));
 
 struct order_log {
-    long instrument_id;
+    unsigned long instrument_id;
     long timestamp;
     int type;
     int direction;
@@ -187,14 +187,14 @@ struct order_log {
 } __attribute__((packed));
 
 struct alpha {
-    long instrument_id;
+    unsigned long instrument_id;
     long timestamp;
     int target_volume;
 } __attribute__((packed));
 
 // Output Only
 struct twap_order {
-    long instrumentId;
+    unsigned long instrumentId;
     long timestamp;
     int direction;
     int volume;
@@ -204,11 +204,11 @@ struct twap_order {
         if (timestamp != o.timestamp) {
             return timestamp < o.timestamp;
         }
-        return instrumentId<o.instrumentId;
+        return instrumentId < o.instrumentId;
     }
 
     bool operator == (const twap_order &o) const {
-        return instrumentId == o.instrumentId == 0 && timestamp == o.timestamp &&
+        return instrumentId == o.instrumentId && timestamp == o.timestamp &&
                direction == o.direction && volume == o.volume && _eq(price, o.price);
     }
 
@@ -224,12 +224,12 @@ struct twap_order {
 } __attribute__((packed));
 
 struct pnl_and_pos {
-    long instrumentId;
+    unsigned long instrumentId;
     int position;
     double pnl;
 
     bool operator < (const pnl_and_pos &o) const {
-        return instrumentId<o.instrumentId;
+        return instrumentId < o.instrumentId;
     }
 
     bool operator == (const pnl_and_pos &o) const {
