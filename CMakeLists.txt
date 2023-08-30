@@ -11,8 +11,8 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -pthread")
 endif()
 #for profile
-#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0")
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
+#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0 -pthread")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -pthread")
 
 # UbiquantMatchingEngine Configuration
 # include_directories(.)
@@ -38,3 +38,7 @@ target_link_libraries(test_main gtest)
 
 add_executable(SenderTest
         test/net_sender_test.cpp src/net/client.h)
+
+add_executable(ServerResultChecker
+        test/file_comparator.h test/file_comparator.cpp test/result_check.cpp )
+target_link_libraries(ServerResultChecker gtest)

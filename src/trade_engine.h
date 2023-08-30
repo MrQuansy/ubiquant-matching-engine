@@ -62,12 +62,12 @@ public:
     // TODO: optimize for output
     std::vector<twap_order> getTWAPOrders();
     std::vector<pnl_and_pos> getPNLAndPos();
+    std::string path;
 
 private:
 
     long long timestampOffset;
     std::pair<int, int> session;
-    std::string path;
 
     int lastContract;
     std::pair<unsigned long, int> contractPairs[MOD];
