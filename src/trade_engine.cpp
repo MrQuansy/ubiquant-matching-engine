@@ -61,7 +61,12 @@ void TradeEngine::onComplete() {
     std::vector<twap_order> twapOrders = getTWAPOrders();
     std::vector<pnl_and_pos> pnlAndPos = getPNLAndPos();
     std::string fileName = path + "_" + std::to_string(session.first) + "_" + std::to_string(session.second);
-    sentResult(fileName, twapOrders, pnlAndPos);
+//    sentResult(fileName, twapOrders, pnlAndPos);
+    for(auto &instrumentToId:instrumentToIdMap){
+        std::cout << instrumentToId.first << std::endl;
+    }
+
+    std::cout << "[Network] Finish send result: " << fileName << std::endl;
 }
 
 std::vector<twap_order> TradeEngine::getTWAPOrders() {

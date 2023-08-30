@@ -51,8 +51,8 @@ public:
     void onComplete();
 
     // TODO: optimize for output
-    std::vector<twap_order> getTWAPOrders();
-    std::vector<pnl_and_pos> getPNLAndPos();
+    inline std::vector<twap_order> getTWAPOrders();
+    inline std::vector<pnl_and_pos> getPNLAndPos();
 
 private:
 

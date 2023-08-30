@@ -75,30 +75,30 @@ int32_t direct_io_load(const std::string & path, int buffer_index) {
     std::string alpha_file_name = path + ALPHA;
     std::string prev_info_file_name = path + PREV_TRADE_INFO;
     int fd[3];
-    if((fd[0] = open(prev_info_file_name.c_str(), O_RDONLY | O_DIRECT))<0){
-        std::cerr<<"open file error! "<<order_file_name<<std::endl;
-    }
-    if((fd[1] = open(alpha_file_name.c_str(), O_RDONLY | O_DIRECT))<0){
-        std::cerr<<"open file error! "<<order_file_name<<std::endl;
-    }
-    if((fd[2] = open(order_file_name.c_str(), O_RDONLY | O_DIRECT))<0){
-        std::cerr<<"open file error! "<<order_file_name<<std::endl;
-    }
+//    if((fd[0] = open(prev_info_file_name.c_str(), O_RDONLY | O_DIRECT))<0){
+//        std::cerr<<"open file error! "<<order_file_name<<std::endl;
+//    }
+//    if((fd[1] = open(alpha_file_name.c_str(), O_RDONLY | O_DIRECT))<0){
+//        std::cerr<<"open file error! "<<order_file_name<<std::endl;
+//    }
+//    if((fd[2] = open(order_file_name.c_str(), O_RDONLY | O_DIRECT))<0){
+//        std::cerr<<"open file error! "<<order_file_name<<std::endl;
+//    }
 
-//    if((fd[0] = open(prev_info_file_name.c_str(), O_RDONLY))<0){
-//        std::cerr<<"open file error! "<<order_file_name<<std::endl;
-//    }
-//    if((fd[1] = open(alpha_file_name.c_str(), O_RDONLY))<0){
-//        std::cerr<<"open file error! "<<order_file_name<<std::endl;
-//    }
-//    if((fd[2] = open(order_file_name.c_str(), O_RDONLY))<0){
-//        std::cerr<<"open file error! "<<order_file_name<<std::endl;
-//    }
+    if((fd[0] = open(prev_info_file_name.c_str(), O_RDONLY))<0){
+        std::cerr<<"open file error! "<<order_file_name<<std::endl;
+    }
+    if((fd[1] = open(alpha_file_name.c_str(), O_RDONLY))<0){
+        std::cerr<<"open file error! "<<order_file_name<<std::endl;
+    }
+    if((fd[2] = open(order_file_name.c_str(), O_RDONLY))<0){
+        std::cerr<<"open file error! "<<order_file_name<<std::endl;
+    }
 
     while(buffers[buffer_index].finish_count.load()!=WORKER_THREAD_NUM);
     order_buffer * b = &buffers[buffer_index];
     b->flag = START;
-    b->path = path;
+    b->path = path.substr(10);
 
     ssize_t bytesRead = 0;
     uint32_t offset = 0;
