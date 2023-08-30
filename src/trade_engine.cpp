@@ -11,7 +11,7 @@ void TradeEngine::initContract(const unsigned long &instrument, const double &pr
             .prevClosePrice = prevClosePrice,
             .prevPosition = prevPosition
     };
-    contractEngineMap[instrument] =
+    contractEngines[getOrInsertInstrument(instrument)] =
             new ContractEngine(session.first, session.second, prevTradeInfo, instrument);
 }
 
@@ -25,7 +25,7 @@ void TradeEngine::insertAlpha(const unsigned long &instrument, const long long &
             .timestamp = static_cast<int>(timestamp - timestampOffset),
             .targetVolume = targetVolume
     };
-    contractEngineMap[instrument]->insertAlpha(alpha);
+    contractEngines[getOrInsertInstrument(instrument)]->insertAlpha(alpha);
 }
 
 void TradeEngine::insertOrderLog(
@@ -43,12 +43,12 @@ void TradeEngine::insertOrderLog(
             .price = priceOff,
             .directionAndType = (unsigned char) ((d << DIRECTION_OFFSET) | type)
     };
-    contractEngineMap[instrument]->insertOrderLog(orderLog);
+    contractEngines[getOrInsertInstrument(instrument)]->insertOrderLog(orderLog);
 }
 
 void TradeEngine::onComplete() {
-    for (auto &contractEngine : contractEngineMap) {
-        contractEngine.second->onComplete();
+    for (int i = 0; i < lastContract; i++) {
+        contractEngines[i]->onComplete();
     }
 
     std::vector<twap_order> twapOrders = getTWAPOrders();
@@ -70,12 +70,13 @@ inline unsigned long reverseInstrumentId(unsigned long instrumentId) {
 
 std::vector<twap_order> TradeEngine::getTWAPOrders() {
     std::vector<twap_order> twapOrders;
-    for (auto &contractEngine : contractEngineMap) {
-        unsigned long instrumentId = reverseInstrumentId(contractEngine.first);
-        int twapSize = contractEngine.second->getTwapSize();
-        compact_order_log* contractTwapOrders = contractEngine.second->getTwapOrders();
-        for (int i = 0; i < twapSize; i++) {
-            compact_order_log orderLog = contractTwapOrders[i];
+    for (int i = 0; i < lastContract; i++) {
+        ContractEngine *contractEngine = contractEngines[i];
+        unsigned long instrumentId = reverseInstrumentId(contractEngine->getInstrument());
+        int twapSize = contractEngine->getTwapSize();
+        compact_order_log* contractTwapOrders = contractEngine->getTwapOrders();
+        for (int j = 0; j < twapSize; j++) {
+            compact_order_log orderLog = contractTwapOrders[j];
             int direction = orderLog.directionAndType >> DIRECTION_OFFSET;
             direction = direction == Sale ? -1 : 1;
             twap_order twapOrder = {
@@ -97,11 +98,12 @@ std::vector<twap_order> TradeEngine::getTWAPOrders() {
 
 std::vector<pnl_and_pos> TradeEngine::getPNLAndPos() {
     std::vector<pnl_and_pos> pnlAndPos;
-    for (auto &contractEngine : contractEngineMap) {
-        unsigned long instrumentId = reverseInstrumentId(contractEngine.first);
+    for (int i = 0; i < lastContract; i++) {
+        ContractEngine *contractEngine = contractEngines[i];
+        unsigned long instrumentId = reverseInstrumentId(contractEngine->getInstrument());
         pnl_and_pos pnlAndPosItem = {
-                .position = contractEngine.second->getPosition(),
-                .pnl = contractEngine.second->getPNL()
+                .position = contractEngine->getPosition(),
+                .pnl = contractEngine->getPNL()
         };
         pnlAndPosItem.instrumentId = instrumentId;
         pnlAndPos.push_back(pnlAndPosItem);
@@ -111,4 +113,18 @@ std::vector<pnl_and_pos> TradeEngine::getPNLAndPos() {
         pnlAndPo.instrumentId = reverseInstrumentId(pnlAndPo.instrumentId);
     }
     return pnlAndPos;
+}
+
+int TradeEngine::getOrInsertInstrument(const unsigned long &instrument) {
+    int index = instrument % MOD;
+    if (contractPairs[index].first == instrument) {
+        return contractPairs[index].second;
+    }
+
+    while (contractPairs[index].first && contractPairs[index].first != instrument) {
+        index = index < MOD ? index + 1 : 0;
+    }
+
+    contractPairs[index] = std::make_pair(instrument, lastContract);
+    return lastContract++;
 }
