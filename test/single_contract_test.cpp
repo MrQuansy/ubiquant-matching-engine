@@ -1,5 +1,5 @@
 //
-// Created by Yongzao Dan on 2023/8/28.
+// Created by Yongzao Dan on 2023/8/30.
 //
 
 #include "gtest/gtest.h"
@@ -11,11 +11,16 @@
 #include <iostream>
 #include <fstream>
 
-class TradeEngineTest : public ::testing::Test {};
+class SingleContractTest : public ::testing::Test {};
 
 void compareLogFiles(const std::string& actual, const std::string& expect);
 
-TEST_F(TradeEngineTest, trade_engine_test) {
+const static std::string DEBUG_DATE = "20150101";
+const static std::string DEBUG_INSTRUMENT = "000.UBE";
+const static std::pair<int, int> DEBUG_SESSION = SESSIONS[0];
+
+/** Test trade log for a single contract and a single Session output */
+TEST_F(SingleContractTest, single_contract_test) {
     // Init engines
     TradeEngine tradeEngine(DEBUG_SESSION);
 

@@ -19,7 +19,7 @@ struct ContractEngine {
 
 public:
 
-    ContractEngine(int sessionNum, int sessionLength, PrevTradeInfo prevTradeInfo) :
+    ContractEngine(int sessionNum, int sessionLength, PrevTradeInfo prevTradeInfo, const std::string &instrument) :
         sessionNum(sessionNum), sessionLength(sessionLength), prevTradeInfo(prevTradeInfo) {
 
         income = 0;
@@ -38,7 +38,7 @@ public:
 
         if (ENABLE_DEBUG_TRADE_LOG) {
             tradeCount = 0;
-            logFile = new std::ofstream(DEBUG_PREFIX + DEBUG_DATE + "_" + DEBUG_INSTRUMENT, std::ios::out);
+            logFile = new std::ofstream(DEBUG_PREFIX + instrument, std::ios::out);
             // (*logFile) << prevTradeInfo << std::endl;
         }
     }
