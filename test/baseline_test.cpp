@@ -5,7 +5,7 @@
 #include "../src/common.h"
 #include "../src/trade_engine.h"
 #include "gtest/gtest.h"
-#include "binary_file_compare.h"
+#include "file_comparator.h"
 
 #include <string>
 #include <vector>

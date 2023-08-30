@@ -5,6 +5,7 @@
 #include "gtest/gtest.h"
 #include "../src/common.h"
 #include "../src/trade_engine.h"
+#include "file_comparator.h"
 
 #include <string>
 #include <vector>
@@ -12,8 +13,6 @@
 #include <fstream>
 
 class SingleContractTest : public ::testing::Test {};
-
-void compareLogFiles(const std::string& actual, const std::string& expect);
 
 const static std::string DEBUG_DATE = "20150101";
 const static std::string DEBUG_INSTRUMENT = "000.UBE";
@@ -82,22 +81,4 @@ TEST_F(SingleContractTest, single_contract_test) {
             "num" + std::to_string(DEBUG_SESSION.first) + "_" +
             "length" + std::to_string(DEBUG_SESSION.second) + "_" +
             DEBUG_INSTRUMENT);
-}
-
-void compareLogFiles(const std::string& actual, const std::string& expect) {
-    std::ifstream ai(actual, std::ios::in);
-    std::ifstream ei(expect, std::ios::in);
-
-    std::string as, es;
-    while (std::getline(ai, as) && std::getline(ei, es)) {
-
-        EXPECT_TRUE(as == es);
-        if (as != es) {
-            std::cout << "Expected: " << es << std::endl;
-            std::cout << "Actual: " << as << std::endl;
-            exit(-1);
-        }
-    }
-
-    std::cout << "All logs are the same!" << std::endl;
 }

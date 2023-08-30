@@ -29,7 +29,7 @@ add_subdirectory(./googletest)
 include_directories(./googletest/include)
 add_executable(
         test_main test/test_main.cpp test/heap_function_test.cpp test/heap_efficiency_test.cpp test/heap_pack_test.cpp test/baseline_test.cpp
-        src/binary_heap.h src/common.h src/trade_engine.h src/contract_engine.h src/contract_engine.cpp src/trade_engine.cpp test/test_main.cpp test/trade_log_test.cpp test/binary_file_compare.h test/binary_file_compare.cpp test/single_contract_test.cpp)
+        src/binary_heap.h src/common.h src/trade_engine.h src/contract_engine.h src/contract_engine.cpp src/trade_engine.cpp test/test_main.cpp test/trade_log_test.cpp test/file_comparator.h test/file_comparator.cpp test/single_contract_test.cpp)
 target_link_libraries(test_main gtest)
 
 

@@ -5,6 +5,7 @@
 #include "gtest/gtest.h"
 #include "../src/common.h"
 #include "../src/trade_engine.h"
+#include "file_comparator.h"
 
 #include <string>
 #include <vector>
@@ -20,8 +21,6 @@ const static std::string DATES[] = {
         "20180404",
         "20190505",
 };
-
-void compareLogFiles(const std::string& actual, const std::string& expect);
 
 /** Test all trade log output */
 TEST_F(TradeLogTest, trade_log_test) {
@@ -94,22 +93,6 @@ TEST_F(TradeLogTest, trade_log_test) {
                 std::cout << DATE << "_" + std::to_string(SESSION.first) + "_" + std::to_string(SESSION.second)
                           << "_" + instrument + " log compare successfully" << std::endl;
             }
-        }
-    }
-}
-
-void compareLogFiles(const std::string& actual, const std::string& expect) {
-    std::ifstream ai(actual, std::ios::in);
-    std::ifstream ei(expect, std::ios::in);
-
-    std::string as, es;
-    while (std::getline(ai, as) && std::getline(ei, es)) {
-
-        EXPECT_TRUE(as == es);
-        if (as != es) {
-            std::cout << "Expected: " << es << std::endl;
-            std::cout << "Actual: " << as << std::endl;
-            exit(-1);
         }
     }
 }
