@@ -11,7 +11,7 @@ void * matching_thread(void * args){
         while (buffers[buffer_index].finish_count.load() == WORKER_THREAD_NUM);
         if(buffers[buffer_index].flag == START){
 //            std::cout<<"[Matching Thread: "<<id <<"] Start!"<<std::endl;
-            engine = new TradeEngine(SESSIONS[id]);
+            engine = new TradeEngine(SESSIONS[id], buffers[buffer_index].path);
             // Init prev_trade_info
             prev_trade_info* prev_buffer = (prev_trade_info*)buffers[buffer_index].prev_info_data;
             for(int i=0;i<buffers[buffer_index].prev_count;i++,prev_buffer++){

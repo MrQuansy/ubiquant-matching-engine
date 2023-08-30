@@ -21,7 +21,7 @@ struct TradeEngine {
 
 public:
 
-    TradeEngine(std::pair<int, int> session) : session(std::move(session)) {
+    TradeEngine(std::pair<int, int> session, std::string path) : session(std::move(session)), path(path) {
         lastId = 0;
         timestampOffset = ENABLE_DEBUG_TRADE_LOG ? 0 : -1;
     }
@@ -59,6 +59,7 @@ private:
     int lastId;
     long long timestampOffset;
     std::pair<int, int> session;
+    std::string path;
 
     std::map<std::string, unsigned char> instrumentToIdMap;
     std::map<unsigned char, std::string> idToInstrumentMap;

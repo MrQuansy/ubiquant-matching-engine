@@ -1,6 +1,10 @@
 //
 // Created by Quansiyi on 2023/8/29.
 //
+
+#ifndef UBIQUANTMATCHINGENGINE_IO_H
+#define UBIQUANTMATCHINGENGINE_IO_H
+
 #include "common.h"
 #include <sys/types.h>
 #include <dirent.h>
@@ -9,8 +13,6 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-#ifndef UBIQUANTMATCHINGENGINE_IO_H
-#define UBIQUANTMATCHINGENGINE_IO_H
 
 #define ALIGN_ORDER_BUFFER_SIZE 1024*1024*512
 #define ALIGN_ALPHA_BUFFER_SIZE 1024*1024*2
@@ -29,6 +31,7 @@ struct order_buffer {
     uint32_t alpha_count;
     uint32_t order_count;
     buffer_flag flag;
+    std::string path;
 
     order_buffer():prev_count(0),alpha_count(0),order_count(0),finish_count(WORKER_THREAD_NUM),flag(IN_PROCESS){
         if(posix_memalign(&order_data,ALIGN_ORDER_BUFFER_SIZE,ALIGN_ORDER_BUFFER_SIZE)!=0){
@@ -46,7 +49,7 @@ struct order_buffer {
 
 order_buffer buffers[BUFFER_NUM];
 
-void load_path_list(std::string dir_path,std::vector<std::string> &path_list)
+void load_path_list(const std::string& dir_path,std::vector<std::string> &path_list)
 {
     DIR *pDir;
     struct dirent* ptr;
@@ -95,6 +98,7 @@ int32_t direct_io_load(const std::string & path, int buffer_index) {
     while(buffers[buffer_index].finish_count.load()!=WORKER_THREAD_NUM);
     order_buffer * b = &buffers[buffer_index];
     b->flag = START;
+    b->path = path;
 
     ssize_t bytesRead = 0;
     uint32_t offset = 0;
