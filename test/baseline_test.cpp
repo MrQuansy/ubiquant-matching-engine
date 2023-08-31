@@ -12,6 +12,14 @@
 #include <iostream>
 #include <fstream>
 
+const static std::string BASELINE_DATA_PREFIX = DATA_PREFIX;
+const static std::string BASELINE_OUTPUT_PREFIX = TEST_OUTPUT_PREFIX;
+const static std::string BASELINE_STD_OUTPUT_PREFIX = STD_OUTPUT_PREFIX;
+
+//const static std::string BASELINE_DATA_PREFIX = "/data2/ubtest/data/";
+//const static std::string BASELINE_OUTPUT_PREFIX = "/data2/ubtest/test_data/";
+//const static std::string BASELINE_STD_OUTPUT_PREFIX = "/data2/ubtest/output_adjuest/";
+
 const static std::string DATES[] = {
         "20150101",
         "20160202",
@@ -59,11 +67,11 @@ TEST_F(BaseLineTest, base_line_test) {
         for (const auto & session : SESSIONS) {
             std::string suffix = "_" + std::to_string(session.first) + "_" + std::to_string(session.second);
             compareTWAPFiles(
-                    TEST_OUTPUT_PREFIX + date + TWAP_ORDER + suffix,
-                    STD_OUTPUT_PREFIX + TWAP_ORDER + "/" + date + suffix);
+                    BASELINE_OUTPUT_PREFIX + date + TWAP_ORDER + suffix,
+                    BASELINE_STD_OUTPUT_PREFIX + TWAP_ORDER + "/" + date + suffix);
             comparePNLFiles(
-                    TEST_OUTPUT_PREFIX + date + PNL_AND_POSITION + suffix,
-                    STD_OUTPUT_PREFIX + PNL_AND_POSITION + "/" + date + suffix);
+                    BASELINE_OUTPUT_PREFIX + date + PNL_AND_POSITION + suffix,
+                    BASELINE_STD_OUTPUT_PREFIX + PNL_AND_POSITION + "/" + date + suffix);
         }
         std::cout << date << " baseline pass" << std::endl;
     }
@@ -79,7 +87,7 @@ void readAllData(
 
     // Read prev_trade_info
     prev_trade_info prevTradeInfo{};
-    std::ifstream prevTradeInfoFile(DATA_PREFIX + date + PREV_TRADE_INFO, std::ios::binary);
+    std::ifstream prevTradeInfoFile(BASELINE_DATA_PREFIX + date + PREV_TRADE_INFO, std::ios::binary);
     while (prevTradeInfoFile.read(reinterpret_cast<char*>(&prevTradeInfo), sizeof(prev_trade_info))) {
         prev_trade_infos.push_back(prevTradeInfo);
     }
@@ -88,7 +96,7 @@ void readAllData(
 
     // Read alpha
     alpha a{};
-    std::ifstream alphaFile(DATA_PREFIX + date + ALPHA, std::ios::binary);
+    std::ifstream alphaFile(BASELINE_DATA_PREFIX + date + ALPHA, std::ios::binary);
     while (alphaFile.read(reinterpret_cast<char*>(&a), sizeof(alpha))) {
         alphas.push_back(a);
     }
@@ -97,7 +105,7 @@ void readAllData(
 
     // Read order_log
     order_log orderLog{};
-    std::ifstream orderLogFile(DATA_PREFIX + date + ORDER_LOG, std::ios::binary);
+    std::ifstream orderLogFile(BASELINE_DATA_PREFIX + date + ORDER_LOG, std::ios::binary);
     while (orderLogFile.read(reinterpret_cast<char*>(&orderLog), sizeof(order_log))) {
         orderLogs.push_back(orderLog);
     }
@@ -167,7 +175,7 @@ void tradeToday(
     // Write pnl_and_position
     for (int i = 0; i < 5; i++) {
         std::string suffix = "_" + std::to_string(SESSIONS[i].first) + "_" + std::to_string(SESSIONS[i].second);
-        std::ofstream pnlAndPositionFile(TEST_OUTPUT_PREFIX + date + PNL_AND_POSITION + suffix, std::ios::binary);
+        std::ofstream pnlAndPositionFile(BASELINE_OUTPUT_PREFIX + date + PNL_AND_POSITION + suffix, std::ios::binary);
         std::vector<pnl_and_pos> pnlAndPositions = tradeEngines[i].getPNLAndPos();
         for (auto pnlAndPosition : pnlAndPositions) {
             pnlAndPositionFile.write(reinterpret_cast<char*>(&pnlAndPosition), sizeof(pnl_and_pos));
@@ -179,7 +187,7 @@ void tradeToday(
     // Write twap_order
     for (int i = 0; i < 5; i++) {
         std::string suffix = "_" + std::to_string(SESSIONS[i].first) + "_" + std::to_string(SESSIONS[i].second);
-        std::ofstream twapOrderFile(TEST_OUTPUT_PREFIX + date + TWAP_ORDER + suffix, std::ios::binary);
+        std::ofstream twapOrderFile(BASELINE_OUTPUT_PREFIX + date + TWAP_ORDER + suffix, std::ios::binary);
         std::vector<twap_order> twapOrders = tradeEngines[i].getTWAPOrders();
         for (auto twapOrder : twapOrders) {
             twapOrderFile.write(reinterpret_cast<char*>(&twapOrder), sizeof(twap_order));
