@@ -5,14 +5,14 @@
 
 void * matching_thread(void * args){
     int id = *(int*)args;
-    char workerBit = WORKER_BIT(id);
+    unsigned char workerBit = WORKER_BIT(id);
     TradeEngine * engine;
     int32_t buffer_index = 0;
     time_t total_waiting_time = 0;
     time_t start_time;
     while(true) {
         time_t t1 = now();
-        while ((buffers[buffer_index].finish_bit&workerBit)!=0);
+        while ((buffers[buffer_index].finish_bit&workerBit));
         total_waiting_time += now()-t1;
         if(buffers[buffer_index].flag == FILE_HEAD){
             start_time = now();
@@ -54,14 +54,13 @@ void * matching_thread(void * args){
             );
         }
 
-//        std::cout<<"[Matching Thread: "<<engine->path<<"-"<<id <<"] read buffer "<< buffer_index <<std::endl;
-
         if (buffers[buffer_index].flag == FILE_END){
             engine->onComplete();
-            std::cout<<"[Matching Thread: "<<engine->path<<"-"<<id <<"] Complete!. Time cost: "<<(now()-start_time)/MILLI_TO_NANO<<"ms"<<std::endl;
+            std::cout<<"[Matching Thread: "<< engine->path << "-" <<id <<"] Complete!. Time cost: "<<(now()-start_time)/MILLI_TO_NANO<<"ms"<<std::endl;
             //std::cout<<"[Matching Thread: "<<id <<"] Waiting time cost: "<<total_waiting_time/MILLI_TO_NANO<<"ms"<<std::endl;
             delete engine;
-            engine = nullptr;
+            buffers[buffer_index].finish_bit |= workerBit;
+            break;
         }
 
         buffers[buffer_index].finish_bit |= workerBit;
@@ -70,28 +69,20 @@ void * matching_thread(void * args){
     return nullptr;
 }
 
-void * io_thread(void * args){
+int main(){
+    pthread_t workers[WORKER_THREAD_NUM];
+    int thread_id[WORKER_THREAD_NUM];
 
     int32_t buffer_index = 0;
     std::vector<std::string> path_list;
     load_path_list(DATA_PREFIX, path_list);
 
     for(std::string & path : path_list){
-        buffer_index = direct_io_load(path, buffer_index);
+        direct_io_load(path, buffer_index);
+        for(int i =0;i<WORKER_THREAD_NUM;i++) {
+            thread_id[i] = i;
+            pthread_create(&workers[i], nullptr,matching_thread, &thread_id[i]);
+        }
+        for(auto & worker : workers) pthread_join(worker, nullptr);
     }
-    return nullptr;
-}
-
-int main(){
-    pthread_t workers[WORKER_THREAD_NUM];
-    int thread_id[WORKER_THREAD_NUM];
-    for(int i =0;i<WORKER_THREAD_NUM;i++) {
-        thread_id[i] = i;
-        pthread_create(&workers[i], nullptr,matching_thread, &thread_id[i]);
-    }
-
-    // io thread
-    io_thread(nullptr);
-
-    for(auto & worker : workers) pthread_join(worker, nullptr);
 }
