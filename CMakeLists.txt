@@ -12,7 +12,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 endif()
 #for profile
 #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0")
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -pthread")
 
 # UbiquantMatchingEngine Configuration
 # include_directories(.)

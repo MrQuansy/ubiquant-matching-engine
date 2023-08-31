@@ -13,7 +13,9 @@
 #include <iostream>
 
 // TODO: Optimize heap size
-const static int HEAP_SIZE = 50 * 1E4;
+//const static int DEFAULT_HEAP_SIZE = 576000; //Maximum size
+const static int DEFAULT_HEAP_SIZE = 1125; // 576000 = 1125 * 512
+//const static int DEFAULT_HEAP_SIZE = 1; // Test dynamic heap size
 
 struct ContractEngine {
 
@@ -30,8 +32,8 @@ public:
         upLimit = highPrecisionRound2(prevTradeInfo.prevClosePrice * 1.1);
         downLimit = highPrecisionRound2(prevTradeInfo.prevClosePrice * 0.9);
 
-        saleHeap = new BinaryHeap(HEAP_SIZE, new MinBinaryHeapCmp());
-        buyHeap = new BinaryHeap(HEAP_SIZE, new MaxBinaryHeapCmp());
+        saleHeap = new BinaryHeap(DEFAULT_HEAP_SIZE, new MinBinaryHeapCmp());
+        buyHeap = new BinaryHeap(DEFAULT_HEAP_SIZE, new MaxBinaryHeapCmp());
 
         twapSize = twapHead = 0;
         twapOrders = new compact_order_log[MAX_TWAP_LENGTH];

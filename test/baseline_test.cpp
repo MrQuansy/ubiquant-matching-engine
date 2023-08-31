@@ -12,13 +12,13 @@
 #include <iostream>
 #include <fstream>
 
-//const static std::string BASELINE_DATA_PREFIX = DATA_PREFIX;
-//const static std::string BASELINE_OUTPUT_PREFIX = TEST_OUTPUT_PREFIX;
-//const static std::string BASELINE_STD_OUTPUT_PREFIX = STD_OUTPUT_PREFIX;
+const static std::string BASELINE_DATA_PREFIX = DATA_PREFIX;
+const static std::string BASELINE_OUTPUT_PREFIX = TEST_OUTPUT_PREFIX;
+const static std::string BASELINE_STD_OUTPUT_PREFIX = STD_OUTPUT_PREFIX;
 
-const static std::string BASELINE_DATA_PREFIX = "/data2/ubtest/data/";
-const static std::string BASELINE_OUTPUT_PREFIX = "/data2/ubtest/test_data/";
-const static std::string BASELINE_STD_OUTPUT_PREFIX = "/data2/ubtest/output_adjuest/";
+//const static std::string BASELINE_DATA_PREFIX = "/data2/ubtest/data/";
+//const static std::string BASELINE_OUTPUT_PREFIX = "/data2/ubtest/test_data/";
+//const static std::string BASELINE_STD_OUTPUT_PREFIX = "/data2/ubtest/output_adjuest/";
 
 const static std::string DATES[] = {
         "20150101",

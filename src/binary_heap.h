@@ -16,7 +16,7 @@ struct BinaryHeap {
     Compare* cmp;
 
     BinaryHeap(int capacity, Compare* cmp) : capacity(capacity), _size(0), cmp(cmp) {
-        heapArray = new compact_order_log[capacity + 5];
+        heapArray = new compact_order_log[capacity + 1];
     }
 
     ~BinaryHeap() {
@@ -32,6 +32,14 @@ struct BinaryHeap {
     }
 
     void insert(const compact_order_log& value) {
+        if (_size == capacity) {
+            capacity <<= 1;
+            auto* newHeapArray = new compact_order_log[capacity + 1];
+            std::memcpy(newHeapArray, heapArray, sizeof(compact_order_log) * (_size + 1));
+            delete[] heapArray;
+            heapArray = newHeapArray;
+        }
+
         int index = ++_size;
         for (int father = index >> 1;
             index > 1 && (*cmp)(value, heapArray[father]);
