@@ -38,7 +38,7 @@ void TradeEngine::insertOrderLog(
 
     unsigned char d = direction == -1 ? Sale : Buy;
     compact_order_log orderLog = {
-            .timestamp = static_cast<int>(timestamp - timestampOffset),
+            .timestamp = (int)(timestamp - timestampOffset),
             .volume = volume,
             .price = priceOff,
             .directionAndType = (unsigned char) ((d << DIRECTION_OFFSET) | type)
