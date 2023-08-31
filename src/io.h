@@ -63,7 +63,7 @@ void load_path_list(const std::string &dir_path, std::vector<std::string> &path_
 
 int32_t direct_io_load(const std::string &path, int buffer_index) {
     std::cout << "[I/O Thread] Start loading file: " << path << std::endl;
-
+    time_t start_time = now();
     std::string order_file_name = path + ORDER_LOG;
     std::string alpha_file_name = path + ALPHA;
     std::string prev_info_file_name = path + PREV_TRADE_INFO;
@@ -88,7 +88,6 @@ int32_t direct_io_load(const std::string &path, int buffer_index) {
 //        std::cerr<<"open file error! "<<order_file_name<<std::endl;
 //    }
 
-    time_t start_time = now();
     time_t total_waiting_time = 0;
     time_t start_waiting_time = now();
     while (buffers[buffer_index].finish_bit != ALL_WORKER_BIT);
@@ -96,7 +95,7 @@ int32_t direct_io_load(const std::string &path, int buffer_index) {
 
     order_buffer * b = &buffers[buffer_index];
     b->flag = FILE_HEAD;
-    b->path = path.substr(10);
+    b->path = path.substr(path.size()-DATE_LENGTH);
 
     ssize_t bytesRead = 0;
     uint32_t offset = 0;

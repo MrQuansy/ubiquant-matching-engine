@@ -3,7 +3,7 @@
 #include "trade_engine.h"
 #include "io.h"
 
-[[noreturn]] void * matching_thread(void * args){
+void * matching_thread(void * args){
     int id = *(int*)args;
     uint8_t workerBit = WORKER_BIT(id);
     TradeEngine * engine;
@@ -66,6 +66,7 @@
         buffers[buffer_index].finish_bit |= workerBit;
         buffer_index = INCR(buffer_index);
     }
+    return nullptr;
 }
 
 int main(){
