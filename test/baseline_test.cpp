@@ -40,7 +40,14 @@ void tradeToday(
         const std::string &date,
         const std::vector<prev_trade_info> &prev_trade_infos,
         const std::vector<alpha> &alphas,
-        const std::vector<order_log> &orderLogs);
+        const std::vector<order_log> &orderLogs,
+        std::vector<pnl_and_pos> pnlAndPositions[],
+        std::vector<twap_order> twapOrders[]);
+
+void writeAllData(
+        const std::string &date,
+        const std::vector<pnl_and_pos> pnlAndPositions[],
+        const std::vector<twap_order> twapOrders[]);
 
 TEST_F(BaseLineTest, base_line_test) {
     for (const auto& date : DATES) {
@@ -48,6 +55,9 @@ TEST_F(BaseLineTest, base_line_test) {
         std::vector<prev_trade_info> prevTradeInfos;
         std::vector<alpha> alphas;
         std::vector<order_log> orderLogs;
+
+        std::vector<pnl_and_pos> pnlAndPositions[5];
+        std::vector<twap_order> twapOrders[5];
 
         // Ready today data
         auto readStart = std::chrono::high_resolution_clock::now();
@@ -58,10 +68,17 @@ TEST_F(BaseLineTest, base_line_test) {
 
         // Trading today
         auto tradeStart = std::chrono::high_resolution_clock::now();
-        tradeToday(date, prevTradeInfos, alphas, orderLogs);
+        tradeToday(date, prevTradeInfos, alphas, orderLogs, pnlAndPositions, twapOrders);
         auto tradeTime = std::chrono::high_resolution_clock::now() - tradeStart;
         std::cout << date << " trading successfully, trade time: ";
         std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(tradeTime).count() << " ms" << std::endl;
+
+        // Write today data
+        auto writeStart = std::chrono::high_resolution_clock::now();
+        writeAllData(date, pnlAndPositions, twapOrders);
+        auto writeTime = std::chrono::high_resolution_clock::now() - writeStart;
+        std::cout << date << " write successfully, write time: ";
+        std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(writeTime).count() << " ms" << std::endl;
 
         // Check today
         for (const auto & session : SESSIONS) {
@@ -117,7 +134,9 @@ void tradeToday(
         const std::string &date,
         const std::vector<prev_trade_info> &prev_trade_infos,
         const std::vector<alpha> &alphas,
-        const std::vector<order_log> &orderLogs) {
+        const std::vector<order_log> &orderLogs,
+        std::vector<pnl_and_pos> pnlAndPositions[],
+        std::vector<twap_order> twapOrders[]) {
 
     // Init engines
     TradeEngine tradeEngines[] = {
@@ -154,16 +173,56 @@ void tradeToday(
 
     // Insert order_log
     for (auto &orderLog : orderLogs) {
-        for (auto &tradeEngine : tradeEngines) {
-            tradeEngine.insertOrderLog(
-                    orderLog.instrument_id,
-                    orderLog.timestamp,
-                    orderLog.type,
-                    orderLog.direction,
-                    orderLog.volume,
-                    orderLog.price_off
-            );
-        }
+//        for (auto &tradeEngine : tradeEngines) {
+//            tradeEngine.insertOrderLog(
+//                    orderLog.instrument_id,
+//                    orderLog.timestamp,
+//                    orderLog.type,
+//                    orderLog.direction,
+//                    orderLog.volume,
+//                    orderLog.price_off
+//            );
+//        }
+        tradeEngines[0].insertOrderLog(
+                orderLog.instrument_id,
+                orderLog.timestamp,
+                orderLog.type,
+                orderLog.direction,
+                orderLog.volume,
+                orderLog.price_off
+        );
+        tradeEngines[1].insertOrderLog(
+                orderLog.instrument_id,
+                orderLog.timestamp,
+                orderLog.type,
+                orderLog.direction,
+                orderLog.volume,
+                orderLog.price_off
+        );
+        tradeEngines[2].insertOrderLog(
+                orderLog.instrument_id,
+                orderLog.timestamp,
+                orderLog.type,
+                orderLog.direction,
+                orderLog.volume,
+                orderLog.price_off
+        );
+        tradeEngines[3].insertOrderLog(
+                orderLog.instrument_id,
+                orderLog.timestamp,
+                orderLog.type,
+                orderLog.direction,
+                orderLog.volume,
+                orderLog.price_off
+        );
+        tradeEngines[4].insertOrderLog(
+                orderLog.instrument_id,
+                orderLog.timestamp,
+                orderLog.type,
+                orderLog.direction,
+                orderLog.volume,
+                orderLog.price_off
+        );
     }
     std::cout << date << " order_log insert successfully" << std::endl;
 
@@ -172,12 +231,27 @@ void tradeToday(
         tradeEngine.onComplete();
     }
 
+    // Get all pnl_and_position
+    for (int i = 0; i < 5; i++) {
+        pnlAndPositions[i] = tradeEngines[i].getPNLAndPos();
+    }
+
+    // Get all twap_order
+    for (int i = 0; i < 5; i++) {
+        twapOrders[i] = tradeEngines[i].getTWAPOrders();
+    }
+}
+
+void writeAllData(
+        const std::string &date,
+        const std::vector<pnl_and_pos> pnlAndPositions[],
+        const std::vector<twap_order> twapOrders[]) {
+
     // Write pnl_and_position
     for (int i = 0; i < 5; i++) {
         std::string suffix = "_" + std::to_string(SESSIONS[i].first) + "_" + std::to_string(SESSIONS[i].second);
         std::ofstream pnlAndPositionFile(BASELINE_OUTPUT_PREFIX + date + PNL_AND_POSITION + suffix, std::ios::binary);
-        std::vector<pnl_and_pos> pnlAndPositions = tradeEngines[i].getPNLAndPos();
-        for (auto pnlAndPosition : pnlAndPositions) {
+        for (auto pnlAndPosition : pnlAndPositions[i]) {
             pnlAndPositionFile.write(reinterpret_cast<char*>(&pnlAndPosition), sizeof(pnl_and_pos));
         }
         pnlAndPositionFile.close();
@@ -188,8 +262,7 @@ void tradeToday(
     for (int i = 0; i < 5; i++) {
         std::string suffix = "_" + std::to_string(SESSIONS[i].first) + "_" + std::to_string(SESSIONS[i].second);
         std::ofstream twapOrderFile(BASELINE_OUTPUT_PREFIX + date + TWAP_ORDER + suffix, std::ios::binary);
-        std::vector<twap_order> twapOrders = tradeEngines[i].getTWAPOrders();
-        for (auto twapOrder : twapOrders) {
+        for (auto twapOrder : twapOrders[i]) {
             twapOrderFile.write(reinterpret_cast<char*>(&twapOrder), sizeof(twap_order));
         }
         twapOrderFile.close();
