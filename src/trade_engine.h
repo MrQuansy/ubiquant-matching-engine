@@ -59,6 +59,8 @@ public:
 
     void onComplete();
 
+    int getOrInsertInstrument(const unsigned long &instrument);
+
     // TODO: optimize for output
     std::vector<twap_order> getTWAPOrders();
     std::vector<pnl_and_pos> getPNLAndPos();
@@ -72,8 +74,6 @@ private:
     int lastContract;
     std::pair<unsigned long, int> contractPairs[MOD];
     ContractEngine *contractEngines[MAX_CONTRACT_NUM];
-
-    int getOrInsertInstrument(const unsigned long &instrument);
 
     // std::unordered_map<unsigned long, ContractEngine*> contractEngineMap;
 };

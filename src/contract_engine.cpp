@@ -27,7 +27,9 @@ void ContractEngine::insertAlpha(compact_alpha alpha) {
 
 void ContractEngine::insertOrderLog(compact_order_log orderLog) {
     // Ensure all TWAP orders with timestamp < orderLog.timestamp are processed
-    processTwapOrdersIfNecessary(orderLog.timestamp);
+    if (twapHead < twapSize && twapOrders[twapHead].timestamp < orderLog.timestamp) {
+        processTwapOrdersIfNecessary(orderLog.timestamp);
+    }
 
     int type = orderLog.directionAndType & TYPE_MASK;
     int direction = (orderLog.directionAndType & DIRECTION_MASK) >> DIRECTION_OFFSET;
@@ -95,23 +97,23 @@ void ContractEngine::insertOrderLog(compact_order_log orderLog) {
                 break;
         }
 
-        if (ENABLE_DEBUG_TRADE_LOG) {
-            (*logFile) << orderLog;
-            if (type == PriceLimit) {
-                (*logFile) << ", price=" << std::fixed << std::setprecision(6) << highPrecisionRound2(orderLog.price)
-                           << ", base_price=" << std::fixed << std::setprecision(6) << highPrecisionRound2(basePrice)
-                           << ", up_limit=" << std::fixed << std::setprecision(6) << highPrecisionRound2(_upLimit)
-                           << ", down_limit=" << std::fixed << std::setprecision(6) << highPrecisionRound2(_downLimit);
-            }
-            (*logFile) << std::endl;
-        }
+//        if (ENABLE_DEBUG_TRADE_LOG) {
+//            (*logFile) << orderLog;
+//            if (type == PriceLimit) {
+//                (*logFile) << ", price=" << std::fixed << std::setprecision(6) << highPrecisionRound2(orderLog.price)
+//                           << ", base_price=" << std::fixed << std::setprecision(6) << highPrecisionRound2(basePrice)
+//                           << ", up_limit=" << std::fixed << std::setprecision(6) << highPrecisionRound2(_upLimit)
+//                           << ", down_limit=" << std::fixed << std::setprecision(6) << highPrecisionRound2(_downLimit);
+//            }
+//            (*logFile) << std::endl;
+//        }
 
         processTrade();
 
     } else {
-        if (ENABLE_DEBUG_TRADE_LOG) {
-            (*logFile) << orderLog << std::endl;
-        }
+//        if (ENABLE_DEBUG_TRADE_LOG) {
+//            (*logFile) << orderLog << std::endl;
+//        }
 
         heap = direction == Sale ? buyHeap : saleHeap;
         switch (type) {
