@@ -22,7 +22,7 @@ struct order_buffer {
     void *order_data;
     void *alpha_data;
     void *prev_info_data;
-    volatile char finish_bit;
+    std::atomic<uint8_t> finish_bit;
     volatile uint32_t prev_count;
     volatile uint32_t alpha_count;
     volatile uint32_t order_count;
@@ -119,7 +119,7 @@ int32_t direct_io_load(const std::string &path, int buffer_index) {
     while ((bytesRead = pread(fd[2], b->order_data, READ_BUFFER_SIZE, offset)) > 0) {
         offset += bytesRead;
         b->order_count = bytesRead / sizeof(order_log);
-//        std::cout<< "[I/O Thread] Finish loading order log segment: "<< buffer_index <<std::endl;
+        //std::cout<< "[I/O Thread] Finish loading order log segment: "<< buffer_index <<std::endl;
         b->finish_bit = 0;
         buffer_index = INCR(buffer_index);
         start_waiting_time = now();

@@ -3,9 +3,9 @@
 #include "trade_engine.h"
 #include "io.h"
 
-void * matching_thread(void * args){
+[[noreturn]] void * matching_thread(void * args){
     int id = *(int*)args;
-    char workerBit = WORKER_BIT(id);
+    uint8_t workerBit = WORKER_BIT(id);
     TradeEngine * engine;
     int32_t buffer_index = 0;
     time_t total_waiting_time = 0;
@@ -39,7 +39,7 @@ void * matching_thread(void * args){
             }
         }
 
-//        std::cout<<"[Matching Thread: "<<id <<"] insert"<<std::endl;
+        //std::cout<<"[Matching Thread: "<<engine->path<<"-"<<id <<"] read buffer "<< buffer_index <<std::endl;
 
         // Insert order_log
         order_log* order_buffer = (order_log*)buffers[buffer_index].order_data;
@@ -54,8 +54,6 @@ void * matching_thread(void * args){
             );
         }
 
-//        std::cout<<"[Matching Thread: "<<engine->path<<"-"<<id <<"] read buffer "<< buffer_index <<std::endl;
-
         if (buffers[buffer_index].flag == FILE_END){
             engine->onComplete();
             std::cout<<"[Matching Thread: "<<engine->path<<"-"<<id <<"] Complete!. Time cost: "<<(now()-start_time)/MILLI_TO_NANO<<"ms"<<std::endl;
@@ -67,7 +65,6 @@ void * matching_thread(void * args){
         buffers[buffer_index].finish_bit |= workerBit;
         buffer_index = INCR(buffer_index);
     }
-    return nullptr;
 }
 
 void * io_thread(void * args){
