@@ -10,11 +10,16 @@
 
 #include <string>
 #include <fstream>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 void compareTWAPFiles(const std::string& actual, const std::string& expect);
 
 void comparePNLFiles(const std::string& actual, const std::string& expect);
 
 void compareLogFiles(const std::string& actual, const std::string& expect);
+
+void checkFileSize(const std::string& actual, const std::string& expect);
 
 #endif //UBIQUANTMATCHINGENGINE_FILE_COMPARATOR_H

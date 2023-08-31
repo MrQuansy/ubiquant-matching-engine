@@ -11,11 +11,12 @@
 #define ALIGN_PREV_BUFFER_SIZE 1024*4
 #define READ_BUFFER_SIZE 1024*1024*360
 #define BUFFER_NUM 8
+#define DATE_LENGTH 8
 
 const static int MAX_TWAP_LENGTH = 480 * 5;
 
 // Input path: DATA_PREFIX + DATE + FILE_NAME
-const static std::string DATA_PREFIX = "/mnt/test_data/";
+const static std::string DATA_PREFIX = "/mnt/final_data/";
 //const static std::string DATA_PREFIX = "/Users/mrquan/Desktop/quant/data/";
 const static std::string ALPHA = "/alpha";
 const static std::string ORDER_LOG = "/order_log";
