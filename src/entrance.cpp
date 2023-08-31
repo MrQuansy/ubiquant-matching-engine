@@ -5,15 +5,16 @@
 
 void * matching_thread(void * args){
     int id = *(int*)args;
+    char workerBit = WORKER_BIT(id);
     TradeEngine * engine;
     int32_t buffer_index = 0;
     time_t total_waiting_time = 0;
     time_t start_time;
     while(true) {
         time_t t1 = now();
-        while (buffers[buffer_index].finish_count.load() == WORKER_THREAD_NUM);
+        while ((buffers[buffer_index].finish_bit&workerBit)!=0);
         total_waiting_time += now()-t1;
-        if(buffers[buffer_index].flag == START){
+        if(buffers[buffer_index].flag == FILE_HEAD){
             start_time = now();
 //            std::cout<<"[Matching Thread: "<<id <<"] Start!"<<std::endl;
             engine = new TradeEngine(SESSIONS[id], buffers[buffer_index].path);
@@ -53,14 +54,17 @@ void * matching_thread(void * args){
             );
         }
 
-        if (buffers[buffer_index].flag==END){
+//        std::cout<<"[Matching Thread: "<<engine->path<<"-"<<id <<"] read buffer "<< buffer_index <<std::endl;
+
+        if (buffers[buffer_index].flag == FILE_END){
             engine->onComplete();
-            std::cout<<"[Matching Thread: "<<id <<"] Complete!. Time cost: "<<(now()-start_time)/MILLI_TO_NANO<<"ms"<<std::endl;
+            std::cout<<"[Matching Thread: "<<engine->path<<"-"<<id <<"] Complete!. Time cost: "<<(now()-start_time)/MILLI_TO_NANO<<"ms"<<std::endl;
             //std::cout<<"[Matching Thread: "<<id <<"] Waiting time cost: "<<total_waiting_time/MILLI_TO_NANO<<"ms"<<std::endl;
             delete engine;
+            engine = nullptr;
         }
 
-        buffers[buffer_index].finish_count++;
+        buffers[buffer_index].finish_bit |= workerBit;
         buffer_index = INCR(buffer_index);
     }
     return nullptr;
