@@ -40,8 +40,9 @@ inline time_t now()
 #define _le(x, y) ((x) < (y) && _neq(x, y))
 #define _gt(x, y) ((x) > (y) && _neq(x, y))
 
-// Use this function carefully since it's time-consuming
+// Use the precision functions carefully since they're time-consuming
 const static double FLOOR = 0.5 - EPS;
+
 inline double highPrecisionRound2(const double &x) {
 //    double sign = x < 0 ? -1.0 : 1.0;
 //    double y = x * 100.0 * sign;
@@ -58,15 +59,13 @@ inline double highPrecisionRound2(const double &x) {
 }
 
 inline double highPrecisionRound2CoverNegative(const double &x) {
-    double sign = x < 0 ? -1.0 : 1.0;
-    double y = x * 100.0 * sign;
-    double _y = (long long) y;
-    _y += y - _y > FLOOR ? 1.0 : 0.0;
-    return _y / 100.0 * sign;
-
 //    double sign = x < 0 ? -1.0 : 1.0;
-//    double y = x * 100.0;
-//    return (double) ((long long) (y + (0.5 + EPS) * sign)) / 100.0;
+//    double y = x * 100.0 * sign;
+//    double _y = (long long) y;
+//    _y += y - _y > FLOOR ? 1.0 : 0.0;
+//    return _y / 100.0 * sign;
+
+    return (double) ((long long) (x * 100.0 + (0.5 + EPS) * (x < 0 ? -1.0 : 1.0))) / 100.0;
 }
 
 const static std::pair<int, int> SESSIONS[5] = {

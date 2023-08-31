@@ -322,5 +322,5 @@ int ContractEngine::getPosition() const {
 }
 
 double ContractEngine::getPNL() const {
-    return highPrecisionRound2(lastPrice * volume - prevTradeInfo.prevClosePrice * prevTradeInfo.prevPosition + income);
+    return highPrecisionRound2CoverNegative(lastPrice * volume - prevTradeInfo.prevClosePrice * prevTradeInfo.prevPosition + income);
 }
