@@ -23,7 +23,6 @@ void filesHaveSameContent(const std::string& pathA, const std::string& pathB) {
         cnt ++;
         if (chA != chB) {
             std::cout << "Files with different content: " << pathA <<" at pos: " << cnt << std::endl;
-
             return;
         }
     }
@@ -31,7 +30,7 @@ void filesHaveSameContent(const std::string& pathA, const std::string& pathB) {
 
 
 void findDifferentTWAPFiles(const std::string& dirA, const std::string& dirB) {
-    DIR *dir = opendir(dirB.c_str());
+    DIR *dir = opendir(dirA.c_str());
     if (dir == nullptr) {
         return;
     }
@@ -51,7 +50,7 @@ void findDifferentTWAPFiles(const std::string& dirA, const std::string& dirB) {
 }
 
 void findDifferentPNLFiles(const std::string& dirA, const std::string& dirB) {
-    DIR *dir = opendir(dirB.c_str());
+    DIR *dir = opendir(dirA.c_str());
     if (dir == nullptr) {
         return;
     }
