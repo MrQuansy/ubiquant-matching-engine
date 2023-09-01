@@ -69,13 +69,19 @@ void * matching_thread(void * args){
     return nullptr;
 }
 
-int main(){
+int main(int argc, char *argv[]){
+    if(argc>2) {
+        std::cout<<"[./entrance {date_name}]"<<std::endl;
+        exit(-1);
+    }
+
     pthread_t workers[WORKER_THREAD_NUM];
     int thread_id[WORKER_THREAD_NUM];
 
     int32_t buffer_index = 0;
     std::vector<std::string> path_list;
-    load_path_list(DATA_PREFIX, path_list);
+    if(argc == 2) load_path_list(DATA_PREFIX, path_list,argv[1]);
+    else load_path_list(DATA_PREFIX, path_list, nullptr);
 
     for(std::string & path : path_list){
         direct_io_load(path, buffer_index);

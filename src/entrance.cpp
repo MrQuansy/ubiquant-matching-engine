@@ -71,7 +71,7 @@ void * io_thread(void * args){
 
     int32_t buffer_index = 0;
     std::vector<std::string> path_list;
-    load_path_list(DATA_PREFIX, path_list);
+    load_path_list(DATA_PREFIX, path_list,(char*) args);
 
     for(std::string & path : path_list){
         buffer_index = direct_io_load(path, buffer_index);
@@ -79,7 +79,12 @@ void * io_thread(void * args){
     return nullptr;
 }
 
-int main(){
+int main(int argc, char *argv[]){
+    if(argc>2) {
+        std::cout<<"[./entrance {date_name}]"<<std::endl;
+        exit(-1);
+    }
+
     pthread_t workers[WORKER_THREAD_NUM];
     int thread_id[WORKER_THREAD_NUM];
     for(int i =0;i<WORKER_THREAD_NUM;i++) {
@@ -88,7 +93,8 @@ int main(){
     }
 
     // io thread
-    io_thread(nullptr);
+    if(argc == 2) io_thread(argv[1]);
+    else io_thread(nullptr);
 
     for(auto & worker : workers) pthread_join(worker, nullptr);
 }

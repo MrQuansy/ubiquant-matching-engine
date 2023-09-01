@@ -44,7 +44,7 @@ struct order_buffer {
 
 order_buffer buffers[BUFFER_NUM];
 
-void load_path_list(const std::string &dir_path, std::vector<std::string> &path_list) {
+void load_path_list(const std::string &dir_path, std::vector<std::string> &path_list, const char* start_date) {
     DIR *pDir;
     struct dirent *ptr;
     if (!(pDir = opendir(dir_path.c_str()))) {
@@ -54,6 +54,7 @@ void load_path_list(const std::string &dir_path, std::vector<std::string> &path_
 
     while ((ptr = readdir(pDir)) != nullptr) {
         if (strcmp(ptr->d_name, ".") != 0 && strcmp(ptr->d_name, "..") != 0) {
+            if(start_date!= nullptr && strcmp(ptr->d_name,start_date)<0) continue;
             path_list.push_back(dir_path + ptr->d_name);
         }
     }
