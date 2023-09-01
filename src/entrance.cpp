@@ -73,9 +73,11 @@ void * io_thread(void * args){
     std::vector<std::string> path_list;
     load_path_list(DATA_PREFIX, path_list,(char*) args);
 
+    time_t startTime = now();
     for(std::string & path : path_list){
         buffer_index = direct_io_load(path, buffer_index);
     }
+    std::cout << "All io complete, time: " << (now()-startTime)/MILLI_TO_NANO << std::endl;
     return nullptr;
 }
 

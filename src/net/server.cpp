@@ -36,8 +36,7 @@ void handleClient(int clientSocket) {
         close(clientSocket);
         return;
     }
-
-    std::cout << dataSize << std::endl;
+    std::cout << "Start receive file..." << fileName << std::endl;
     std::ofstream twapOutputFile(TWAP_DIR_PATH + fileName, std::ios::binary);
     if (!twapOutputFile.is_open()) {
         std::cerr << "Error opening file for writing." << std::endl;

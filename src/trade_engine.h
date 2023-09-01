@@ -24,6 +24,7 @@ struct TradeEngine {
 
 public:
 
+
     TradeEngine(std::pair<int, int> session, std::string path) : session(std::move(session)), path(std::move(path)) {
         timestampOffset = ENABLE_DEBUG_TRADE_LOG ? 0 : -1;
 
@@ -32,6 +33,7 @@ public:
     }
 
     ~TradeEngine() {
+        uint8_t t;
         for (int i = 0; i < lastContract; i++) {
             delete contractEngines[i];
         }

@@ -131,7 +131,7 @@ int32_t direct_io_load(const std::string &path, int buffer_index) {
     }
 
     b->flag = FILE_END;
-    std::cout<< "[I/O Thread] Finish loading order log segment: "<< buffer_index <<std::endl;
+//    std::cout<< "[I/O Thread] Finish loading order log segment: "<< buffer_index <<std::endl;
     b->finish_bit=0;
 
 
