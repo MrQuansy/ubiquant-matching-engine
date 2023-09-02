@@ -12,6 +12,7 @@
 #include <vector>
 #include <unistd.h>
 #include <fcntl.h>
+#include <sys/stat.h>
 
 #define INCR(INDEX) ((INDEX+1) & (BUFFER_NUM -1))
 #define ALL_WORKER_BIT  (1 << WORKER_THREAD_NUM) - 1
@@ -60,6 +61,48 @@ void load_path_list(const std::string &dir_path, std::vector<std::string> &path_
     }
     sort(path_list.begin(), path_list.end());
     closedir(pDir);
+}
+
+void load_path_list_by_filesize(const std::string &dir_path,std::vector<std::string> &path_list, const char* start_date){
+    DIR *pDir;
+    struct dirent *ptr;
+    if (!(pDir = opendir(dir_path.c_str()))) {
+        std::cerr << "Folder doesn't Exist!" << std::endl;
+        return;
+    }
+
+    typedef std::pair<size_t , std::string > file_info;
+    std::vector<file_info> files;
+    struct stat fileStat{};
+    auto p = [](const file_info & a, const file_info & b)->bool{
+        return (a.first < b.first) || ((a.first == b.first) && a.second<b.second);
+    };
+
+    while ((ptr = readdir(pDir)) != nullptr) {
+        if (strcmp(ptr->d_name, ".") != 0 && strcmp(ptr->d_name, "..") != 0) {
+            //if(start_date!= nullptr && strcmp(ptr->d_name,start_date)<0) continue;
+            std::string date_dir = dir_path + ptr->d_name;
+
+            if (stat((date_dir+ORDER_LOG).c_str(), &fileStat) == 0){
+                files.emplace_back(fileStat.st_size,date_dir);
+            }
+        }
+    }
+    closedir(pDir);
+
+    std::sort(files.begin(), files.end(), p);
+
+    bool find = false;
+    std::string start_date_dir = dir_path + start_date;
+    for (const auto& file : files) {
+        if(start_date!= nullptr) {
+            if (file.second != start_date_dir && !find) continue;
+            if (file.second == start_date_dir) find = true;
+        }
+        path_list.emplace_back(file.second);
+    }
+
+    std::cout<<"[I/O Thread] Load date path list successfully, total dir size:"<< path_list.size()<<std::endl;
 }
 
 int32_t direct_io_load(const std::string &path, int buffer_index) {
